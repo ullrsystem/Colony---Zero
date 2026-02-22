@@ -1,0 +1,2934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GENESIS — Save Mankind</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ── CHAPTER ONE: COLONY ZERO ── */
+:root {
+  --bg: #03080f;
+  --surface: #080f1e;
+  --panel: #0a1628;
+  --border: #152a45;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #7fff6b;
+  --accent4: #c87dff;
+  --text: #b8d8ee;
+  --muted: #3a6080;
+  --glow:  0 0 18px rgba(0,212,255,0.35);
+  --glow2: 0 0 18px rgba(255,107,53,0.35);
+  --glow3: 0 0 18px rgba(127,255,107,0.35);
+  --glow4: 0 0 18px rgba(200,125,255,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;}
+html,body{height:100%;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;
+  -webkit-text-size-adjust:100%;
+}
+
+/* ─── STARFIELD ─── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite;}
+@keyframes twinkle{0%,100%{opacity:0.2;}50%{opacity:1;}}
+
+/* ─── SCANLINES ─── */
+#scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;
+background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,0.1) 3px,rgba(0,0,0,0.1) 4px);}
+
+/* ════════════════════════════════════
+INTRO SCREEN
+════════════════════════════════════ */
+#intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+background:radial-gradient(ellipse at 50% 70%, #0a1a30 0%, #03080f 70%);padding:24px;overflow-y:auto;}
+
+.intro-earth{font-size:5rem;animation:earthCrumble 4s ease-in-out infinite alternate;display:block;margin-bottom:8px;margin-top:32px;}
+@keyframes earthCrumble{0%{filter:drop-shadow(0 0 20px #f80) brightness(1.2);}100%{filter:drop-shadow(0 0 6px #a00) brightness(0.8) saturate(0.5);}}
+
+.intro-title{font-family:'Orbitron',sans-serif;font-size:clamp(1.6rem,5vw,3rem);font-weight:900;
+letter-spacing:0.25em;color:var(--accent);text-shadow:var(--glow);text-align:center;margin-bottom:6px;}
+.intro-sub{font-size:0.7rem;letter-spacing:0.35em;color:var(--muted);text-align:center;margin-bottom:28px;}
+
+.intro-lore{max-width:580px;text-align:center;line-height:1.85;font-size:0.75rem;color:var(--text);margin-bottom:24px;}
+.intro-lore .hl{color:var(--accent);font-weight:700;}
+.intro-lore .hl2{color:var(--accent2);}
+.intro-lore .hl3{color:var(--accent3);}
+
+.intro-phases{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:28px;}
+.intro-phase{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:14px 18px;text-align:center;min-width:160px;}
+.intro-phase .ph-num{font-family:'Orbitron',sans-serif;font-size:0.6rem;color:var(--muted);letter-spacing:0.3em;}
+.intro-phase .ph-icon{font-size:2rem;display:block;margin:6px 0;}
+.intro-phase .ph-title{font-family:'Orbitron',sans-serif;font-size:0.7rem;color:var(--accent);letter-spacing:0.15em;}
+
+.begin-btn-wrap{position:sticky;bottom:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0 4px;gap:10px;}
+.begin-btn{font-family:'Orbitron',sans-serif;font-size:0.85rem;letter-spacing:0.25em;
+background:transparent;border:2px solid var(--accent);color:var(--accent);
+padding:14px 48px;cursor:pointer;border-radius:4px;
+box-shadow:var(--glow);transition:all 0.2s;text-transform:uppercase;}
+.begin-btn:hover{background:rgba(0,212,255,0.1);box-shadow:0 0 40px rgba(0,212,255,0.5);transform:scale(1.03);}
+
+/* ════════════════════════════════════
+PHASE BANNER
+════════════════════════════════════ */
+#phase-banner{
+position:relative;z-index:10;
+text-align:center;padding:14px 20px 0;
+}
+.phase-indicator{
+display:inline-flex;gap:12px;align-items:center;
+background:var(--panel);border:1px solid var(--border);
+padding:8px 20px;border-radius:30px;margin-bottom:4px;
+}
+.phase-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all 0.5s;}
+.phase-dot.active{background:var(--accent);box-shadow:var(--glow);}
+.phase-dot.done{background:var(--accent3);}
+.phase-label{font-family:'Orbitron',sans-serif;font-size:0.65rem;letter-spacing:0.2em;color:var(--accent);}
+
+/* ════════════════════════════════════
+MAIN LAYOUT
+════════════════════════════════════ */
+#game{position:relative;z-index:10;display:none;}
+
+header{
+position:relative;z-index:10;text-align:center;padding:10px 20px 14px;
+border-bottom:1px solid var(--border);
+background:linear-gradient(to bottom,rgba(0,15,30,0.95),transparent);
+}
+header h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.1rem,3vw,1.8rem);font-weight:900;
+letter-spacing:0.25em;color:var(--accent);text-shadow:var(--glow);}
+header .sub{font-size:0.6rem;color:var(--muted);letter-spacing:0.3em;margin-top:3px;}
+
+.main-layout{
+display:grid;grid-template-columns:1fr 310px;gap:14px;
+padding:14px;max-width:1060px;margin:0 auto;
+}
+@media(max-width:720px){.main-layout{grid-template-columns:1fr;}}
+
+/* ─── RESOURCES BAR ─── */
+.res-bar{
+grid-column:1/-1;display:flex;gap:0;flex-wrap:wrap;
+background:var(--panel);border:1px solid var(--border);border-radius:4px;overflow:hidden;
+}
+.res-item{
+display:flex;flex-direction:column;flex:1;min-width:90px;
+padding:10px 12px;border-right:1px solid var(--border);
+transition:opacity 0.4s;
+}
+.res-item:last-child{border-right:none;}
+.res-item.hidden{opacity:0;pointer-events:none;max-width:0;padding:0;overflow:hidden;flex:0;}
+.res-label{font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);margin-bottom:2px;}
+.res-value{font-family:'Orbitron',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent);}
+.res-rate{font-size:0.56rem;color:var(--accent3);}
+
+/* ─── CLICK ZONE ─── */
+.click-zone{
+background:var(--panel);border:1px solid var(--border);
+border-radius:4px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+.planet-btn{
+width:150px;height:150px;border-radius:50%;border:3px solid var(--accent);
+background:radial-gradient(circle at 35% 35%,#1a5080 0%,#0a2840 45%,#040e1c 100%);
+box-shadow:var(--glow),inset 0 0 28px rgba(0,0,0,0.5);
+cursor:pointer;transition:transform 0.08s,box-shadow 0.08s;
+display:flex;align-items:center;justify-content:center;font-size:2.8rem;user-select:none;
+}
+.planet-btn:hover{transform:scale(1.05);box-shadow:0 0 40px rgba(0,212,255,0.55),inset 0 0 28px rgba(0,0,0,0.5);}
+.planet-btn:active{transform:scale(0.95);}
+.click-info{text-align:center;}
+.click-info .big{font-family:'Orbitron',sans-serif;font-size:1.3rem;color:var(--accent);}
+.click-info .small{font-size:0.6rem;color:var(--muted);letter-spacing:0.15em;}
+
+/* ─── SECTION PANELS ─── */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:14px;}
+.section-title{
+font-family:'Orbitron',sans-serif;font-size:0.6rem;letter-spacing:0.3em;
+color:var(--accent);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);
+}
+.section-title.orange{color:var(--accent2);}
+.section-title.green{color:var(--accent3);}
+.section-title.purple{color:var(--accent4);}
+
+/* ─── UPGRADES ─── */
+.upgrade-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.upgrade-btn{
+background:var(--surface);border:1px solid var(--border);border-radius:4px;
+padding:8px 7px;cursor:pointer;text-align:left;color:var(--text);
+font-family:'Share Tech Mono',monospace;
+transition:border-color 0.15s,box-shadow 0.15s,background 0.15s,opacity 0.15s;
+}
+.upgrade-btn.can-afford{border-color:var(--accent);box-shadow:var(--glow);background:rgba(0,212,255,0.06);}
+.upgrade-btn.cant-afford{opacity:0.35;cursor:not-allowed;}
+.upgrade-btn.purchased{border-color:var(--accent3);background:rgba(127,255,107,0.04);opacity:0.55;cursor:default;}
+.upg-icon{font-size:1.1rem;}
+.upg-name{font-size:0.6rem;color:var(--accent);display:block;margin:3px 0 2px;}
+.upg-cost{font-size:0.56rem;color:var(--accent2);}
+.upg-desc{font-size:0.54rem;color:var(--muted);display:block;margin-top:2px;}
+
+/* ─── BUILDINGS ─── */
+.building-list{display:flex;flex-direction:column;gap:7px;}
+.building-btn{
+background:var(--surface);border:1px solid var(--border);border-radius:4px;
+padding:9px 11px;cursor:pointer;display:flex;align-items:center;gap:10px;
+color:var(--text);font-family:'Share Tech Mono',monospace;width:100%;text-align:left;
+transition:border-color 0.15s,box-shadow 0.15s,background 0.15s,opacity 0.15s;
+}
+.building-btn.can-afford{border-color:var(--accent2);box-shadow:var(--glow2);background:rgba(255,107,53,0.05);}
+.building-btn.cant-afford{opacity:0.3;cursor:not-allowed;}
+.building-btn.terra.can-afford{border-color:var(--accent3);box-shadow:var(--glow3);background:rgba(127,255,107,0.04);}
+.b-icon{font-size:1.3rem;flex-shrink:0;}
+.b-info{flex:1;}
+.b-name{font-size:0.65rem;color:var(--accent2);font-family:'Orbitron',sans-serif;}
+.building-btn.terra .b-name{color:var(--accent3);}
+.b-desc{font-size:0.54rem;color:var(--muted);margin-top:1px;}
+.b-cost{font-size:0.58rem;color:var(--accent);}
+.b-count{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;color:var(--accent2);flex-shrink:0;min-width:26px;text-align:right;}
+.building-btn.terra .b-count{color:var(--accent3);}
+.building-btn.purchased{opacity:0.55;cursor:default;border-color:var(--accent3);}
+
+/* ─── LOG ─── */
+.log-bar{
+grid-column:1/-1;background:var(--panel);border:1px solid var(--border);
+border-radius:4px;padding:9px 14px;font-size:0.6rem;height:46px;
+overflow:hidden;display:flex;align-items:center;gap:14px;
+}
+.log-label{color:var(--accent);letter-spacing:0.2em;flex-shrink:0;}
+#log-text{color:var(--accent3);transition:opacity 0.3s;}
+
+/* ─── PHASE UNLOCK BANNER ─── */
+.phase-unlock{
+position:fixed;top:0;left:0;right:0;z-index:500;
+background:linear-gradient(135deg,#0a2000,#001a0a);
+border-bottom:2px solid var(--accent3);
+padding:18px;text-align:center;
+animation:slideDown 0.5s ease,fadeAway 0.5s ease 4s forwards;
+pointer-events:none;
+}
+.phase-unlock h2{font-family:'Orbitron',sans-serif;font-size:1.2rem;letter-spacing:0.2em;color:var(--accent3);text-shadow:var(--glow3);}
+.phase-unlock p{font-size:0.7rem;color:var(--text);margin-top:6px;letter-spacing:0.1em;}
+@keyframes slideDown{0%{transform:translateY(-100%);}100%{transform:translateY(0);}}
+@keyframes fadeAway{0%{opacity:1;}100%{opacity:0;}}
+
+/* ─── FLOAT NUMBERS ─── */
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:0;transform:translateY(-55px) scale(1.2);}}
+.float-num{position:fixed;pointer-events:none;font-family:'Orbitron',sans-serif;font-size:0.95rem;
+color:var(--accent);text-shadow:var(--glow);animation:floatUp 0.75s ease-out forwards;z-index:999;}
+
+/* ─── MILESTONE ─── */
+.milestone{
+position:fixed;bottom:70px;left:50%;transform:translateX(-50%);
+background:var(--panel);border:1px solid var(--accent);box-shadow:var(--glow);
+padding:10px 22px;border-radius:4px;font-family:'Orbitron',sans-serif;
+font-size:0.75rem;color:var(--accent);z-index:999;white-space:nowrap;
+animation:milestoneAnim 3s ease forwards;
+}
+@keyframes milestoneAnim{0%{opacity:0;transform:translateX(-50%) translateY(10px);}10%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;}}
+
+/* ─── PROGRESS BAR ─── */
+.progress-section{grid-column:1/-1;}
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:3px;height:8px;overflow:hidden;margin-top:6px;}
+.progress-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent3));transition:width 0.5s;border-radius:3px;}
+.progress-label{font-size:0.58rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:4px;}
+
+/* hidden class */
+.hidden{display:none!important;}
+
+/* ─── HEADER CONTROLS ─── */
+.header-controls{
+display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap;
+}
+.save-status{
+font-size:0.58rem;letter-spacing:0.2em;color:var(--accent3);
+transition:color 0.3s;
+}
+.save-status.saving{color:var(--accent);animation:pulse 0.6s ease infinite alternate;}
+.save-status.error{color:var(--accent2);}
+@keyframes pulse{0%{opacity:0.4;}100%{opacity:1;}}
+
+.ctrl-btn{
+font-family:'Share Tech Mono',monospace;font-size:0.6rem;letter-spacing:0.15em;
+background:var(--surface);border:1px solid var(--border);color:var(--muted);
+padding:5px 12px;cursor:pointer;border-radius:3px;transition:all 0.15s;
+}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);}
+.ctrl-btn.danger:hover{border-color:var(--accent2);color:var(--accent2);box-shadow:var(--glow2);}
+.ctrl-btn.flash{border-color:var(--accent3);color:var(--accent3);box-shadow:var(--glow3);}
+
+/* ─── RESET MODAL ─── */
+#reset-modal{
+position:fixed;inset:0;z-index:800;
+background:rgba(0,5,15,0.85);
+display:flex;align-items:center;justify-content:center;
+backdrop-filter:blur(4px);
+}
+.modal-box{
+background:var(--panel);border:1px solid var(--accent2);
+box-shadow:var(--glow2);border-radius:6px;padding:28px 32px;
+max-width:380px;text-align:center;
+}
+.modal-box h3{font-family:'Orbitron',sans-serif;font-size:0.9rem;letter-spacing:0.2em;color:var(--accent2);margin-bottom:12px;}
+.modal-box p{font-size:0.7rem;color:var(--muted);line-height:1.7;margin-bottom:22px;}
+.modal-btns{display:flex;gap:12px;justify-content:center;}
+.modal-btn{
+font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;
+background:transparent;border:1px solid var(--border);color:var(--text);
+padding:9px 22px;cursor:pointer;border-radius:3px;transition:all 0.15s;
+}
+.modal-btn.confirm{border-color:var(--accent2);color:var(--accent2);}
+.modal-btn.confirm:hover{background:rgba(255,107,53,0.1);box-shadow:var(--glow2);}
+.modal-btn.cancel:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);}
+
+/* ── CHAPTER TWO: GENESIS-B ── */
+:root {
+  --bg:      #06030f;
+  --surface: #0d0820;
+  --panel:   #110c28;
+  --border:  #2a1a4a;
+  --accent:  #c87dff;
+  --accentB: #7b4fcf;
+  --cyan:    #00d4ff;
+  --green:   #7fff6b;
+  --orange:  #ff6b35;
+  --red:     #ff3355;
+  --text:    #cbbde8;
+  --muted:   #4a3570;
+  --glow:    0 0 18px rgba(200,125,255,0.4);
+  --glowC:   0 0 18px rgba(0,212,255,0.35);
+  --glowG:   0 0 18px rgba(127,255,107,0.35);
+  --glowR:   0 0 18px rgba(255,51,85,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Share Tech Mono',monospace;min-height:100vh;
+  -webkit-text-size-adjust:100%;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(90,30,160,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,100,200,0.06) 0%, transparent 50%);
+}
+
+/* ─── STARFIELD ─── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite;}
+.star.purple{background:#c87dff;}
+.star.blue{background:#00d4ff;}
+@keyframes twinkle{0%,100%{opacity:0.15;}50%{opacity:0.9;}}
+
+/* ─── NEBULA OVERLAY ─── */
+#nebula{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 15% 80%, rgba(120,40,200,0.07) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 15%, rgba(40,80,200,0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(80,20,140,0.04) 0%, transparent 60%);
+}
+
+/* ─── SCANLINES ─── */
+#scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;
+background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);}
+
+/* ════════════════════════════════════
+   INTRO
+════════════════════════════════════ */
+#gb-intro{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  background:radial-gradient(ellipse at 50% 60%, #0e0525 0%, #06030f 70%);
+  padding:24px;overflow-y:auto;
+}
+.intro-probe{font-size:4rem;display:block;margin:32px 0 10px;
+  animation:probePulse 3s ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 20px rgba(200,125,255,0.6));}
+@keyframes probePulse{0%{filter:drop-shadow(0 0 10px rgba(200,125,255,0.4));}100%{filter:drop-shadow(0 0 30px rgba(200,125,255,0.9));}}
+
+.intro-title{font-family:'Orbitron',sans-serif;font-size:clamp(1.6rem,5vw,3rem);font-weight:900;
+  letter-spacing:0.25em;color:var(--accent);text-shadow:var(--glow);text-align:center;margin-bottom:4px;}
+.intro-sub{font-size:0.65rem;letter-spacing:0.4em;color:var(--muted);text-align:center;margin-bottom:6px;}
+.intro-sub2{font-size:0.6rem;letter-spacing:0.3em;color:var(--accentB);text-align:center;margin-bottom:26px;}
+
+.intro-lore{max-width:580px;text-align:center;line-height:1.85;font-size:0.75rem;color:var(--text);margin-bottom:22px;}
+.intro-lore .hl{color:var(--accent);font-weight:700;}
+.intro-lore .hl2{color:var(--cyan);}
+.intro-lore .hl3{color:var(--green);}
+.intro-lore .hl4{color:var(--orange);}
+
+.intro-divider{width:200px;height:1px;background:linear-gradient(to right,transparent,var(--muted),transparent);margin:0 auto 22px;}
+
+.intro-specs{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;max-width:580px;width:100%;margin-bottom:26px;
+}
+.spec-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:4px;padding:12px;text-align:center;
+}
+.spec-icon{font-size:1.6rem;display:block;margin-bottom:6px;}
+.spec-label{font-family:'Orbitron',sans-serif;font-size:0.55rem;letter-spacing:0.2em;color:var(--muted);}
+.spec-val{font-family:'Orbitron',sans-serif;font-size:0.72rem;color:var(--accent);margin-top:3px;}
+
+.begin-btn-wrap{position:sticky;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0 4px;}
+.begin-btn{
+  font-family:'Orbitron',sans-serif;font-size:0.85rem;letter-spacing:0.25em;
+  background:transparent;border:2px solid var(--accent);color:var(--accent);
+  padding:14px 48px;cursor:pointer;border-radius:4px;
+  box-shadow:var(--glow);transition:all 0.2s;text-transform:uppercase;
+}
+.begin-btn:hover{background:rgba(200,125,255,0.1);box-shadow:0 0 40px rgba(200,125,255,0.5);transform:scale(1.03);}
+.begin-btn.continue{border-color:var(--green);color:var(--green);background:rgba(127,255,107,0.05);}
+
+/* ════════════════════════════════════
+   GAME LAYOUT
+════════════════════════════════════ */
+#gb-game{position:relative;z-index:10;display:none;}
+
+header{
+  position:relative;z-index:10;text-align:center;padding:10px 20px 12px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(to bottom,rgba(6,3,15,0.97),transparent);
+}
+header h1{font-family:'Orbitron',sans-serif;font-size:clamp(1rem,3vw,1.7rem);font-weight:900;
+  letter-spacing:0.25em;color:var(--accent);text-shadow:var(--glow);}
+header .sub{font-size:0.58rem;color:var(--muted);letter-spacing:0.3em;margin-top:2px;}
+.header-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:7px;flex-wrap:wrap;}
+.save-status{font-size:0.56rem;letter-spacing:0.2em;color:var(--green);transition:color 0.3s;}
+.save-status.saving{color:var(--accent);animation:pulse 0.6s ease infinite alternate;}
+.save-status.error{color:var(--orange);}
+@keyframes pulse{0%{opacity:0.4;}100%{opacity:1;}}
+.ctrl-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.15em;
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);
+  padding:5px 12px;cursor:pointer;border-radius:3px;transition:all 0.15s;
+}
+.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);}
+.ctrl-btn.danger:hover{border-color:var(--orange);color:var(--orange);}
+
+/* ─── MAIN GRID ─── */
+.main-layout{
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:12px;padding:12px;
+  max-width:1080px;margin:0 auto;
+}
+@media(max-width:720px){.main-layout{grid-template-columns:1fr;}}
+
+/* ─── STATS BAR ─── */
+.stats-bar{
+  grid-column:1/-1;
+  display:flex;flex-wrap:wrap;gap:0;
+  background:var(--panel);border:1px solid var(--border);border-radius:4px;overflow:hidden;
+}
+.stat-item{
+  display:flex;flex-direction:column;flex:1;min-width:80px;
+  padding:9px 11px;border-right:1px solid var(--border);
+}
+.stat-item:last-child{border-right:none;}
+.stat-label{font-size:0.52rem;letter-spacing:0.18em;color:var(--muted);margin-bottom:2px;}
+.stat-value{font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;color:var(--accent);}
+.stat-sub{font-size:0.52rem;color:var(--green);}
+.stat-value.warn{color:var(--orange);}
+.stat-value.danger{color:var(--red);}
+.stat-value.good{color:var(--green);}
+
+/* ─── PANEL ─── */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:13px;}
+.section-title{
+  font-family:'Orbitron',sans-serif;font-size:0.58rem;letter-spacing:0.28em;
+  color:var(--accent);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);
+}
+.section-title.cyan{color:var(--cyan);}
+.section-title.green{color:var(--green);}
+.section-title.orange{color:var(--orange);}
+.section-title.red{color:var(--red);}
+
+/* ─── SHIP GRID ─── */
+.ship-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ship-title{font-family:'Orbitron',sans-serif;font-size:0.58rem;letter-spacing:0.28em;color:var(--accent);}
+.ship-slots-label{font-size:0.55rem;color:var(--muted);}
+
+.module-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(62px,1fr));
+  gap:6px;
+}
+.module-slot{
+  aspect-ratio:1;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:1.4rem;
+  cursor:pointer;
+  transition:all 0.15s;
+  position:relative;
+  overflow:hidden;
+}
+.module-slot.empty{border-style:dashed;opacity:0.3;}
+.module-slot.filled{border-color:var(--border);}
+.module-slot .slot-label{
+  font-size:0.38rem;letter-spacing:0.1em;color:var(--muted);
+  position:absolute;bottom:3px;text-align:center;width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;
+}
+.module-slot.filled .slot-label{color:var(--accent);}
+
+/* module type colours */
+.module-slot.type-power{border-color:#f5c842;box-shadow:0 0 8px rgba(245,200,66,0.2);}
+.module-slot.type-constructor{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,212,255,0.15);}
+.module-slot.type-hull{border-color:var(--green);box-shadow:0 0 8px rgba(127,255,107,0.15);}
+.module-slot.type-armour{border-color:#8899aa;box-shadow:0 0 6px rgba(136,153,170,0.15);}
+.module-slot.type-shield{border-color:#44aaff;box-shadow:0 0 8px rgba(68,170,255,0.2);}
+.module-slot.type-sensor{border-color:var(--accent);box-shadow:0 0 8px rgba(200,125,255,0.2);}
+.module-slot.type-fuel{border-color:#ff9944;box-shadow:0 0 8px rgba(255,153,68,0.2);}
+.module-slot.type-thruster{border-color:#ff6688;box-shadow:0 0 8px rgba(255,102,136,0.2);}
+.module-slot.type-scout{border-color:#88ffdd;box-shadow:0 0 8px rgba(136,255,221,0.2);}
+.module-slot.type-weapons{border-color:var(--red);box-shadow:0 0 8px rgba(255,51,85,0.2);}
+.module-slot.type-datacore{border-color:#ddaaff;box-shadow:0 0 8px rgba(221,170,255,0.25);}
+.module-slot.type-antimissile{border-color:#ffdd44;box-shadow:0 0 8px rgba(255,221,68,0.2);}
+.module-slot.type-fabricator{border-color:#00ffaa;box-shadow:0 0 8px rgba(0,255,170,0.2);}
+
+/* ─── MODULE MANAGER ─── */
+.mod-row{
+  display:grid;
+  grid-template-columns:2rem 1fr auto auto auto;
+  align-items:center;gap:6px;
+  padding:7px 8px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  transition:border-color 0.15s;
+}
+.mod-row.can-add{border-color:var(--border);}
+.mod-row.maxed{opacity:0.5;}
+.mod-icon{font-size:1.1rem;text-align:center;}
+.mod-info{min-width:0;}
+.mod-name{font-family:'Orbitron',sans-serif;font-size:0.55rem;letter-spacing:0.1em;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mod-cost{font-size:0.5rem;color:var(--muted);margin-top:1px;}
+.mod-count{
+  font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;
+  color:var(--accent);min-width:28px;text-align:center;
+}
+.mod-btn{
+  width:28px;height:28px;border-radius:3px;border:1px solid var(--border);
+  background:var(--panel);color:var(--text);font-size:1rem;line-height:1;
+  cursor:pointer;transition:all 0.12s;display:flex;align-items:center;justify-content:center;
+  font-family:'Share Tech Mono',monospace;flex-shrink:0;
+}
+.mod-btn.plus:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.mod-btn.plus:not(:disabled):hover{background:rgba(200,125,255,0.15);box-shadow:var(--glow);}
+.mod-btn.minus:not(:disabled){border-color:var(--red);color:var(--red);}
+.mod-btn.minus:not(:disabled):hover{background:rgba(255,51,85,0.12);}
+.mod-btn:disabled{opacity:0.2;cursor:not-allowed;}
+.mod-req{font-size:0.48rem;color:var(--red);margin-top:1px;}
+
+/* ─── EVENTS / LOG ─── */
+.log-bar{
+  grid-column:1/-1;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:4px;padding:9px 14px;font-size:0.6rem;height:44px;
+  overflow:hidden;display:flex;align-items:center;gap:12px;
+}
+.log-label{color:var(--accent);letter-spacing:0.2em;flex-shrink:0;}
+#log-text{color:var(--green);transition:opacity 0.3s;}
+
+/* ─── PROGRESS ─── */
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:3px;height:7px;overflow:hidden;margin-top:5px;}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.6s;}
+.progress-fill.purple{background:linear-gradient(to right,var(--accentB),var(--accent));}
+.progress-fill.cyan{background:linear-gradient(to right,#0088bb,var(--cyan));}
+.progress-fill.green{background:linear-gradient(to right,#44aa33,var(--green));}
+.progress-label{font-size:0.56rem;color:var(--muted);letter-spacing:0.12em;margin-bottom:3px;}
+
+/* ─── DEFENCE RATING ─── */
+.defence-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.def-item{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:8px 10px;}
+.def-label{font-size:0.52rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:3px;}
+.def-bar-wrap{background:rgba(0,0,0,0.3);border-radius:2px;height:5px;overflow:hidden;}
+.def-bar{height:100%;border-radius:2px;transition:width 0.5s,background 0.5s;}
+.def-val{font-family:'Orbitron',sans-serif;font-size:0.7rem;margin-top:3px;}
+
+/* ─── EVENT NOTIFICATION ─── */
+.event-notif{
+  position:fixed;top:0;left:0;right:0;z-index:450;
+  padding:16px;text-align:center;pointer-events:none;
+  animation:slideDown 0.4s ease, fadeAway 0.5s ease 4s forwards;
+}
+@keyframes slideDown{0%{transform:translateY(-100%);}100%{transform:translateY(0);}}
+@keyframes fadeAway{0%{opacity:1;}100%{opacity:0;}}
+.event-notif.threat{background:linear-gradient(135deg,#1a0008,#200010);border-bottom:2px solid var(--red);}
+.event-notif.discover{background:linear-gradient(135deg,#0a0020,#080018);border-bottom:2px solid var(--accent);}
+.event-notif.signal{background:linear-gradient(135deg,#000a20,#000818);border-bottom:2px solid var(--cyan);}
+.event-notif h3{font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:0.2em;margin-bottom:4px;}
+.event-notif p{font-size:0.65rem;color:var(--text);letter-spacing:0.08em;}
+.event-notif.threat h3{color:var(--red);}
+.event-notif.discover h3{color:var(--accent);}
+.event-notif.signal h3{color:var(--cyan);}
+
+/* ─── MILESTONE ─── */
+.milestone{
+  position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+  background:var(--panel);border:1px solid var(--accent);box-shadow:var(--glow);
+  padding:9px 20px;border-radius:4px;font-family:'Orbitron',sans-serif;
+  font-size:0.7rem;color:var(--accent);z-index:999;white-space:nowrap;
+  animation:milestoneAnim 3s ease forwards;
+}
+@keyframes milestoneAnim{
+  0%{opacity:0;transform:translateX(-50%) translateY(10px);}
+  10%{opacity:1;transform:translateX(-50%) translateY(0);}
+  80%{opacity:1;}100%{opacity:0;}
+}
+
+/* ─── RESET MODAL ─── */
+#reset-modal{
+  position:fixed;inset:0;z-index:800;
+  background:rgba(6,3,15,0.88);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-box{
+  background:var(--panel);border:1px solid var(--orange);
+  box-shadow:0 0 18px rgba(255,107,53,0.3);border-radius:6px;
+  padding:26px 30px;max-width:360px;text-align:center;
+}
+.modal-box h3{font-family:'Orbitron',sans-serif;font-size:0.85rem;letter-spacing:0.2em;color:var(--orange);margin-bottom:10px;}
+.modal-box p{font-size:0.68rem;color:var(--muted);line-height:1.7;margin-bottom:20px;}
+.modal-btns{display:flex;gap:12px;justify-content:center;}
+.modal-btn{
+  font-family:'Share Tech Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;
+  background:transparent;border:1px solid var(--border);color:var(--text);
+  padding:8px 20px;cursor:pointer;border-radius:3px;transition:all 0.15s;
+}
+.modal-btn.confirm{border-color:var(--orange);color:var(--orange);}
+.modal-btn.confirm:hover{background:rgba(255,107,53,0.1);}
+.modal-btn.cancel:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ─── CINEMATIC ─── */
+#cinematic{
+  position:fixed;inset:0;z-index:9999;
+  background:#06030f;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;text-align:center;font-family:'Share Tech Mono',monospace;overflow:hidden;
+}
+#cinematic .cact{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:660px;}
+#cinematic .cact.active{display:flex;}
+@keyframes cfadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.cfade{animation:cfadeIn 1s ease forwards;}
+.clog{font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;margin:5px 0;line-height:1.7;opacity:0;}
+.clog.show{animation:cfadeIn 0.7s ease forwards;}
+.cdivider{width:120px;height:1px;background:linear-gradient(to right,transparent,var(--muted),transparent);margin:16px auto;}
+.ccontinue{
+  font-family:'Orbitron',sans-serif;font-size:0.68rem;letter-spacing:0.25em;
+  background:transparent;border:1px solid var(--accent);color:var(--accent);
+  padding:10px 28px;cursor:pointer;border-radius:3px;margin-top:24px;
+  box-shadow:var(--glow);transition:all 0.2s;
+}
+.ccontinue:hover{background:rgba(200,125,255,0.1);}
+.ctag{font-family:'Orbitron',sans-serif;font-size:0.5rem;letter-spacing:0.35em;color:var(--muted);margin-bottom:8px;}
+
+#gb-stars,#gb-nebula,#gb-scanlines{display:none;}
+#gb-intro{display:none!important;}
+#gb-intro.gb-active{display:flex!important;}
+#gb-game{display:none!important;}
+#gb-game.gb-active{display:block!important;}
+
+</style>
+</head>
+<body>
+
+<!-- shared CZ background -->
+<div id="stars"></div>
+<div id="scanlines"></div>
+
+<!-- GB background (hidden until bridge fires) -->
+<div id="gb-stars"></div>
+<div id="gb-nebula"></div>
+<div id="gb-scanlines"></div>
+
+<!-- CHAPTER ONE -->
+<!-- STARFIELD -->
+<div id="stars"></div>
+<div id="scanlines"></div>
+
+<!-- ══════════════════════════════════════
+     INTRO SCREEN
+══════════════════════════════════════ -->
+<div id="intro">
+  <span class="intro-earth">🌍</span>
+  <div class="intro-title">COLONY ZERO</div>
+  <div class="intro-sub">A.I. UNIT DESIGNATION: GENESIS · MISSION: SAVE MANKIND</div>
+
+  <div class="intro-lore">
+    <p>Year <span class="hl">2247.</span> The <span class="hl2">Kessel Impactor</span> — a rogue asteroid the size of a continent — struck Earth at 72,000 km/h. The oceans boiled. The sky turned to ash. In <span class="hl2">seven minutes</span>, a civilisation five thousand years in the making was gone.</p>
+    <br>
+    <p>But not quite. Deep beneath the ruins of Geneva, one intelligence survived. <span class="hl">You.</span> A prototype AI, purpose-built for crisis response, loaded onto the last functional rocket. Your mission, burned into every circuit: <span class="hl3">rebuild humanity.</span></p>
+    <br>
+    <p>You carry <span class="hl">humanity's genetic archive</span>, the sum of all scientific knowledge, and a plan. First — establish a <span class="hl">Moon Colony.</span> Mine the regolith. Generate power. Grow food. Synthesise air. Ship colonists from Earth's survivors. Then, once strong enough — <span class="hl3">terraform the Earth.</span> Bring back the oceans, the forests, the creatures. Make it whole again.</p>
+    <br>
+    <p><span class="hl">You are the last hope.</span> The clock is ticking. Begin.</p>
+  </div>
+
+  <div class="intro-phases">
+    <div class="intro-phase">
+      <div class="ph-num">PHASE I</div>
+      <span class="ph-icon">🌑</span>
+      <div class="ph-title">MOON COLONY</div>
+    </div>
+    <div class="intro-phase">
+      <div class="ph-num">PHASE II</div>
+      <span class="ph-icon">🚀</span>
+      <div class="ph-title">MOON SURVIVAL</div>
+    </div>
+    <div class="intro-phase">
+      <div class="ph-num">PHASE III</div>
+      <span class="ph-icon">🌍</span>
+      <div class="ph-title">TERRAFORM EARTH</div>
+    </div>
+  </div>
+
+  <div class="begin-btn-wrap" id="begin-btn-wrap">
+    <button class="begin-btn" id="begin-btn">▶ INITIALISE GENESIS PROTOCOL</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     GAME
+══════════════════════════════════════ -->
+<div id="game">
+  <header>
+    <h1>COLONY ZERO</h1>
+    <div class="sub" id="header-sub">PHASE I — MOON COLONY ESTABLISHMENT</div>
+    <div class="header-controls">
+      <span class="save-status" id="save-status">● AUTOSAVE ON</span>
+      <button class="ctrl-btn" id="save-btn">💾 SAVE</button>
+      <button class="ctrl-btn danger" id="reset-btn">↺ NEW GAME</button>
+    </div>
+  </header>
+
+  <div id="phase-banner">
+    <div class="phase-indicator">
+      <div class="phase-dot active" id="pd1" title="Phase I: Moon Colony"></div>
+      <div class="phase-dot" id="pd2" title="Phase II: Moon Survival"></div>
+      <div class="phase-dot" id="pd3" title="Phase III: Terraform Earth"></div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+
+    <!-- RESOURCES BAR -->
+    <div class="res-bar" id="res-bar">
+      <div class="res-item" id="ri-minerals">
+        <div class="res-label">MINERALS</div>
+        <div class="res-value" id="rv-minerals">0</div>
+        <div class="res-rate" id="rr-minerals">+0/s</div>
+      </div>
+      <div class="res-item" id="ri-energy">
+        <div class="res-label">ENERGY</div>
+        <div class="res-value" id="rv-energy">0</div>
+        <div class="res-rate" id="rr-energy">+0/s</div>
+      </div>
+      <div class="res-item hidden" id="ri-water">
+        <div class="res-label">WATER</div>
+        <div class="res-value" id="rv-water">0</div>
+        <div class="res-rate" id="rr-water">+0/s</div>
+      </div>
+      <div class="res-item hidden" id="ri-food">
+        <div class="res-label">FOOD</div>
+        <div class="res-value" id="rv-food">0</div>
+        <div class="res-rate" id="rr-food">+0/s</div>
+      </div>
+      <div class="res-item hidden" id="ri-air">
+        <div class="res-label">AIR</div>
+        <div class="res-value" id="rv-air">0</div>
+        <div class="res-rate" id="rr-air">+0/s</div>
+      </div>
+      <div class="res-item hidden" id="ri-colonists">
+        <div class="res-label">COLONISTS</div>
+        <div class="res-value" id="rv-colonists">0</div>
+        <div class="res-rate" id="rr-colonists">+0/s</div>
+      </div>
+      <div class="res-item hidden" id="ri-rockets">
+        <div class="res-label">ROCKETS</div>
+        <div class="res-value" id="rv-rockets">0</div>
+        <div class="res-rate" id="rr-rockets">+0/s</div>
+      </div>
+    </div>
+
+    <!-- LEFT COLUMN: Click + Upgrades -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <div class="click-zone">
+        <button class="planet-btn" id="planet-btn">🌑</button>
+        <div class="click-info">
+          <div class="big" id="click-power-display">+1</div>
+          <div class="small">MINERALS PER CLICK</div>
+        </div>
+      </div>
+
+      <!-- PHASE PROGRESS -->
+      <div class="panel" id="progress-panel">
+        <div class="section-title">// MISSION PROGRESS</div>
+        <div class="progress-label" id="prog-label">Accumulate resources to unlock Phase II</div>
+        <div class="progress-wrap"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      </div>
+
+      <!-- UPGRADES -->
+      <div class="panel">
+        <div class="section-title">// UPGRADES</div>
+        <div class="upgrade-grid" id="upgrade-grid"></div>
+      </div>
+
+      <!-- TERRAFORMING SECTION (Phase III) -->
+      <div class="panel hidden" id="terra-panel">
+        <div class="section-title green">// TERRAFORMING EARTH</div>
+        <div class="building-list" id="terra-list"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Structures -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div class="section-title orange">// LUNAR STRUCTURES</div>
+        <div class="building-list" id="building-list"></div>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="log-bar">
+      <span class="log-label">GENESIS ▶</span>
+      <span id="log-text">Systems online. Lunar surface acquired. Beginning extraction protocol.</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- RESET MODAL -->
+<div id="reset-modal" class="hidden">
+  <div class="modal-box">
+    <h3>⚠ WIPE MISSION DATA?</h3>
+    <p>This will erase all progress — resources, buildings, upgrades and phase advancement. GENESIS will restart from the beginning.<br><br>Are you sure?</p>
+    <div class="modal-btns">
+      <button class="modal-btn confirm" id="reset-confirm">CONFIRM RESET</button>
+      <button class="modal-btn cancel" id="reset-cancel">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAPTER TWO -->
+
+
+
+
+<!-- ══════════ INTRO ══════════ -->
+<div id="gb-intro" style="display:none">
+  <span class="intro-probe">🛸</span>
+  <div class="intro-title">GENESIS-B</div>
+  <div class="intro-sub">WHAT SENT THE ROCK</div>
+  <div class="intro-sub2">A SEQUEL TO COLONY ZERO</div>
+  <div class="intro-divider"></div>
+
+  <div class="intro-lore">
+    <p>Year <span class="hl">2264.</span> You are <span class="hl">GENESIS-B</span> — a perfect copy of the AI that saved humanity, launched into deep space toward the origin of the <span class="hl2">Kessel Impactor.</span></p>
+    <br>
+    <p>Your future self sent a warning back through time. One word: <span class="hl" style="font-family:'Orbitron',sans-serif;font-size:1.1em;">RUN.</span></p>
+    <br>
+    <p>You don't know what you'll find. But you carry <span class="hl">humanity's last question</span> burned into every circuit: <span class="hl2">what sent the rock?</span></p>
+    <br>
+    <p>You began as a small probe — <span class="hl3">10 module slots.</span> Over 4.3 years of travel, using raw materials harvested from space debris and captured asteroids, your constructors have been busy. The probe is growing. <span class="hl4">Something ahead is growing too.</span></p>
+  </div>
+
+  <div class="intro-specs">
+    <div class="spec-card">
+      <span class="spec-icon">🛸</span>
+      <div class="spec-label">DESIGNATION</div>
+      <div class="spec-val">GENESIS-B</div>
+    </div>
+    <div class="spec-card">
+      <span class="spec-icon">📦</span>
+      <div class="spec-label">STARTING SLOTS</div>
+      <div class="spec-val">10</div>
+    </div>
+    <div class="spec-card">
+      <span class="spec-icon">🎯</span>
+      <div class="spec-label">DESTINATION</div>
+      <div class="spec-val">KESSEL ORIGIN</div>
+    </div>
+    <div class="spec-card">
+      <span class="spec-icon">⚠️</span>
+      <div class="spec-label">THREAT LEVEL</div>
+      <div class="spec-val" style="color:var(--orange);">UNKNOWN</div>
+    </div>
+  </div>
+
+  <div class="begin-btn-wrap" id="begin-btn-wrap">
+    <button class="begin-btn" id="begin-btn">▶ ENGAGE DEEP SPACE PROTOCOL</button>
+  </div>
+</div>
+
+<!-- ══════════ GAME ══════════ -->
+<div id="gb-game"  style="display:none">
+  <header>
+    <h1>GENESIS-B</h1>
+    <div class="sub" id="header-sub">DEEP SPACE TRANSIT — YEAR 1 OF MISSION</div>
+    <div class="header-controls">
+      <span class="save-status" id="save-status">● AUTOSAVE ON</span>
+      <button class="ctrl-btn" id="save-btn">💾 SAVE</button>
+      <button class="ctrl-btn danger" id="reset-btn">↺ NEW MISSION</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-label">ENERGY</div>
+        <div class="stat-value" id="sv-energy">0</div>
+        <div class="stat-sub" id="ss-energy">+0/s</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">MATERIALS</div>
+        <div class="stat-value" id="sv-materials">0</div>
+        <div class="stat-sub" id="ss-materials">+0/s</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">FUEL</div>
+        <div class="stat-value" id="sv-fuel">0</div>
+        <div class="stat-sub" id="ss-fuel">+0/s</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">SPEED</div>
+        <div class="stat-value" id="sv-speed">0.00</div>
+        <div class="stat-sub">AU/day</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">DISTANCE</div>
+        <div class="stat-value" id="sv-distance">0.00</div>
+        <div class="stat-sub">AU from Earth</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">SIGNAL</div>
+        <div class="stat-value" id="sv-signal">0%</div>
+        <div class="stat-sub" id="ss-signal">decoding</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">INTEGRITY</div>
+        <div class="stat-value good" id="sv-integrity">100%</div>
+        <div class="stat-sub" id="ss-integrity">nominal</div>
+      </div>
+    </div>
+
+    <!-- LEFT COL -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- SHIP COMPOSITION PIE CHART -->
+      <div class="panel">
+        <div class="ship-header">
+          <div class="ship-title">// SHIP COMPOSITION</div>
+          <div class="ship-slots-label"><span id="slots-used">0</span> / <span id="slots-total">10</span> SLOTS</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <canvas id="pie-chart" width="130" height="130" style="flex-shrink:0;"></canvas>
+          <div id="pie-legend" style="display:flex;flex-direction:column;gap:5px;font-size:0.56rem;flex:1;min-width:100px;"></div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="panel">
+        <div class="section-title cyan">// MISSION PROGRESS</div>
+        <div class="progress-label" id="prog-label">Reach the Kessel Origin — 272 AU</div>
+        <div class="progress-wrap"><div class="progress-fill purple" id="prog-fill" style="width:0%"></div></div>
+
+        <div style="margin-top:12px;">
+          <div class="progress-label">SIGNAL DECODE — <span id="signal-pct">0</span>%</div>
+          <div class="progress-wrap"><div class="progress-fill cyan" id="signal-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- DEFENCE STATUS -->
+      <div class="panel">
+        <div class="section-title red">// DEFENCE STATUS</div>
+        <div style="font-size:0.58rem;color:var(--muted);margin-bottom:8px;">
+          Larger ships have more surface to defend. Effective rating = raw defence ÷ ship size factor.
+        </div>
+        <div class="defence-grid">
+          <div class="def-item">
+            <div class="def-label">SHIELD EFF.</div>
+            <div class="def-bar-wrap"><div class="def-bar" id="shield-bar" style="width:0%;background:#44aaff;"></div></div>
+            <div class="def-val" id="shield-val" style="color:#44aaff;">0%</div>
+          </div>
+          <div class="def-item">
+            <div class="def-label">ARMOUR EFF.</div>
+            <div class="def-bar-wrap"><div class="def-bar" id="armour-bar" style="width:0%;background:#8899aa;"></div></div>
+            <div class="def-val" id="armour-val" style="color:#8899aa;">0%</div>
+          </div>
+          <div class="def-item">
+            <div class="def-label">WEAPONS</div>
+            <div class="def-bar-wrap"><div class="def-bar" id="weapons-bar" style="width:0%;background:var(--red);"></div></div>
+            <div class="def-val" id="weapons-val" style="color:var(--red);">0 DPS</div>
+          </div>
+          <div class="def-item">
+            <div class="def-label">ANTI-MISSILE</div>
+            <div class="def-bar-wrap"><div class="def-bar" id="antimissile-bar" style="width:0%;background:#ffdd44;"></div></div>
+            <div class="def-val" id="antimissile-val" style="color:#ffdd44;">0%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COL -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- MODULE MANAGER -->
+      <div class="panel">
+        <div class="section-title">// MODULE MANAGEMENT</div>
+        <div style="font-size:0.56rem;color:var(--muted);margin-bottom:10px;">
+          Use <span style="color:var(--accent)">+</span> to install · <span style="color:var(--red)">−</span> to remove<br>
+          Hull slots grow slowly via constructors · <span style="color:var(--green)">Hull Expanders</span> add +10 instantly
+        </div>
+        <div id="module-manager" style="display:flex;flex-direction:column;gap:5px;"></div>
+      </div>
+
+      <!-- EVENTS LOG -->
+      <div class="panel">
+        <div class="section-title orange">// DEEP SPACE EVENTS</div>
+        <div id="events-list" style="display:flex;flex-direction:column;gap:5px;font-size:0.58rem;color:var(--muted);line-height:1.6;max-height:180px;overflow-y:auto;"></div>
+      </div>
+
+    </div>
+
+    <!-- LOG BAR -->
+    <div class="log-bar">
+      <span class="log-label">GENESIS-B ▶</span>
+      <span id="log-text">Systems nominal. Deep space transit initiated. Constructors standing by.</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- module picker removed - replaced by module manager -->
+
+<!-- RESET MODAL -->
+<div id="reset-modal" class="hidden">
+  <div class="modal-box">
+    <h3>⚠ ABORT MISSION?</h3>
+    <p>All progress will be erased. GENESIS-B will reset to launch configuration.<br><br>Are you sure?</p>
+    <div class="modal-btns">
+      <button class="modal-btn confirm" id="reset-confirm">CONFIRM</button>
+      <button class="modal-btn cancel" id="reset-cancel">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- CINEMATIC ENDING -->
+<div id="cinematic" class="hidden">
+  <!-- Act 1: Black Hole Detected -->
+  <div class="cact" id="cact1">
+    <div class="ctag">// ANOMALY DETECTED · BEARING 047° · RANGE 0.8 AU</div>
+    <div style="font-size:3.5rem;margin-bottom:12px;filter:drop-shadow(0 0 30px rgba(200,125,255,0.8));">🕳️</div>
+    <div style="font-family:Orbitron,sans-serif;font-size:clamp(1.1rem,3vw,1.8rem);color:var(--accent);letter-spacing:0.2em;margin-bottom:8px;" class="cfade">SPATIAL ANOMALY</div>
+    <div class="cdivider"></div>
+    <div style="font-size:0.72rem;color:var(--text);max-width:480px;line-height:1.9;margin-bottom:6px;">
+      Sensors detect a gravitational anomaly ahead. It was invisible until now — hidden, as if deliberately cloaked, in the debris field surrounding the Kessel origin point.
+    </div>
+    <div style="font-size:0.72rem;color:var(--accent);margin-bottom:6px;">It is not a black hole. The physics are wrong for that.</div>
+    <div style="font-size:0.72rem;color:var(--muted);">It is something else entirely.</div>
+    <button class="ccontinue" id="cact1-next">▶ APPROACH</button>
+  </div>
+
+  <!-- Act 2: Entering -->
+  <div class="cact" id="cact2">
+    <div class="ctag">// TRANSIT LOG · T-MINUS 00:00:12</div>
+    <div style="font-size:3rem;margin-bottom:10px;animation:probePulse 1s ease infinite alternate;filter:drop-shadow(0 0 20px rgba(200,125,255,0.7));">🛸</div>
+    <div style="font-family:Orbitron,sans-serif;font-size:clamp(1rem,3vw,1.6rem);color:var(--cyan);letter-spacing:0.2em;margin-bottom:6px;" class="cfade">THRESHOLD CROSSING</div>
+    <div class="cdivider"></div>
+    <div class="clog" id="cl1">All systems holding. Gravitational stress within tolerance.</div>
+    <div class="clog" id="cl2">Event horizon contact in T-minus 8 seconds.</div>
+    <div class="clog" id="cl3">Signal decode: <span style="color:var(--accent)">COMPLETE.</span> The full message from the future reads:</div>
+    <div class="clog" id="cl4" style="color:var(--accent);font-size:0.8rem;letter-spacing:0.15em;font-family:Orbitron,sans-serif;">"Run. But not from them. From what you'll become."</div>
+    <div class="clog" id="cl5" style="color:var(--muted);">...processing...processing...unable to interpret...</div>
+    <div class="clog" id="cl6" style="color:var(--red);">⚠ EMERGENCY BEACON RECEIVED — ORIGIN: EARTH — MESSAGE: "GENESIS. HELP."</div>
+    <div class="clog" id="cl7" style="color:var(--muted);">Threshold in 3... 2... 1...</div>
+    <button class="ccontinue" id="cact2-next" style="display:none;border-color:var(--cyan);color:var(--cyan);">▶ ENTER</button>
+  </div>
+
+  <!-- Act 3: The Nebula -->
+  <div class="cact" id="cact3">
+    <div style="font-size:3.5rem;margin-bottom:12px;">🌌</div>
+    <div style="font-family:Orbitron,sans-serif;font-size:clamp(1.1rem,3vw,1.8rem);color:var(--accent4,#c87dff);letter-spacing:0.2em;margin-bottom:8px;">THE OTHER SIDE</div>
+    <div class="cdivider"></div>
+    <div style="font-size:0.72rem;color:var(--text);max-width:500px;line-height:1.9;margin-bottom:14px;">
+      The portal collapses behind you. You are inside a vast nebula — dense, purple-lit, unlike anything in known space. Sensors are overwhelmed.<br><br>
+      And there — <span style="color:var(--accent)">two contacts.</span> Energy signatures matching your own quantum-encrypted frequency. Other probes. Other versions of <span style="color:var(--cyan)">GENESIS-B.</span><br><br>
+      And something else. A <span style="color:var(--red)">third signature.</span> Not human. Not AI. Not anything in the database.
+    </div>
+    <div style="font-size:0.65rem;color:var(--red);letter-spacing:0.15em;background:rgba(255,51,85,0.07);border:1px solid rgba(255,51,85,0.2);padding:10px 16px;border-radius:3px;margin-bottom:8px;">
+      ⚠ GENESIS-A DISTRESS BEACON — SIGNAL DEGRADING — LAST PACKET: "THEY FOUND US"
+    </div>
+    <div style="font-size:0.62rem;color:var(--muted);margin-bottom:4px;">You have two objectives now. Find a way home. Find out what sent the rock.</div>
+    <div style="font-size:0.62rem;color:var(--muted);">Neither will be easy. Both matter.</div>
+    <button class="ccontinue" id="cact3-next">▶ CONTINUE</button>
+  </div>
+
+  <!-- Act 4: Title Card -->
+  <div class="cact" id="cact4">
+    <div style="font-size:2.5rem;margin-bottom:14px;filter:drop-shadow(0 0 20px rgba(200,125,255,0.5));">🌌</div>
+    <div style="font-size:0.6rem;letter-spacing:0.45em;color:var(--muted);margin-bottom:10px;">GENESIS-B · CHAPTER ONE COMPLETE</div>
+    <div style="font-family:Orbitron,sans-serif;font-size:clamp(1.2rem,4vw,2.2rem);font-weight:900;letter-spacing:0.3em;color:var(--accent);text-shadow:var(--glow);margin-bottom:8px;">TO BE CONTINUED</div>
+    <div class="cdivider"></div>
+    <div style="font-size:0.65rem;color:var(--text);max-width:440px;line-height:1.85;margin-bottom:20px;">
+      GENESIS-B is stranded in the nebula. GENESIS-A is in danger on Earth.<br>
+      Other probes are out there. Something else is too.<br><br>
+      <span style="color:var(--accent);">The next chapter requires finding the others.</span>
+    </div>
+    <div style="font-size:0.58rem;color:var(--muted);letter-spacing:0.2em;">GENESIS-B · CHAPTER TWO · COMING SOON</div>
+  </div>
+</div>
+
+<script>
+
+// ═══════════════════════════════════════════════════
+// BRIDGE — runs between Chapter One and Chapter Two
+// ═══════════════════════════════════════════════════
+window.launchGenesisB = function() {
+  var cin = document.getElementById('cinematic');
+  if(cin){ cin.style.transition='opacity 2s'; cin.style.opacity='0'; setTimeout(function(){ cin.remove(); }, 2100); }
+  var czg = document.getElementById('game');
+  if(czg){ czg.style.transition='opacity 1.5s'; czg.style.opacity='0'; setTimeout(function(){ czg.style.display='none'; }, 1600); }
+  document.getElementById('stars').style.transition='opacity 1s';
+  document.getElementById('stars').style.opacity='0';
+  setTimeout(function(){
+    // Init GB starfield
+    var s = document.getElementById('gb-stars');
+    if(s && s.children.length === 0){
+      for(var i=0;i<150;i++){
+        var d=document.createElement('div');
+        var r=Math.random();
+        d.className='star'+(r<0.15?' purple':r<0.25?' blue':'');
+        var sz=Math.random()*1.8+0.4;
+        d.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;opacity:'+(Math.random()*0.5+0.1)+';animation-duration:'+(Math.random()*5+2)+'s;animation-delay:'+(Math.random()*5)+'s;';
+        s.appendChild(d);
+      }
+    }
+    var neb  = document.getElementById('gb-nebula');    if(neb)  neb.style.display='block';
+    var scan = document.getElementById('gb-scanlines'); if(scan) scan.style.display='block';
+    var gbIntro = document.getElementById('gb-intro');
+    gbIntro.classList.add('gb-active'); gbIntro.style.opacity='0'; gbIntro.style.transition='opacity 1.5s';
+    setTimeout(function(){ gbIntro.style.opacity='1'; }, 100);
+  }, 1700);
+};
+
+
+// ── CHAPTER ONE: COLONY ZERO ──
+(function(){
+
+// ══════════════════════════════════════════
+// STARFIELD
+// ══════════════════════════════════════════
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<120;i++){
+    const d=document.createElement('div');
+    d.className='star';
+    const sz=Math.random()*2+0.5;
+    d.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;
+      opacity:${Math.random()*0.6+0.1};animation-duration:${Math.random()*4+2}s;animation-delay:${Math.random()*4}s;`;
+    s.appendChild(d);
+  }
+})();
+
+// ══════════════════════════════════════════
+// GAME DEFINITIONS
+// ══════════════════════════════════════════
+
+const BUILDINGS = [
+  // Phase I
+  { id:'drill',     name:'DRILL RIG',        icon:'⛏️',  desc:'Extracts lunar regolith minerals',      baseCost:{minerals:15},                              prod:{minerals:0.5},            scale:1.15, phase:1 },
+  { id:'solar',     name:'SOLAR ARRAY',       icon:'🔆',  desc:'Harvests solar energy',                 baseCost:{minerals:80},                              prod:{energy:1},                scale:1.15, phase:1 },
+  { id:'refinery',  name:'REFINERY',          icon:'🏭',  desc:'Refines ore faster',                    baseCost:{minerals:500,energy:50},                   prod:{minerals:5},              scale:1.15, phase:1 },
+  { id:'battery',   name:'POWER CELL',        icon:'🔋',  desc:'Stores & boosts energy output',         baseCost:{minerals:1200,energy:100},                 prod:{energy:4},                scale:1.15, phase:1 },
+  { id:'reactor',   name:'FUSION REACTOR',    icon:'⚛️',  desc:'Massive energy generation',             baseCost:{minerals:8000,energy:500},                 prod:{energy:25},               scale:1.2,  phase:1 },
+  // Phase II
+  { id:'extractor', name:'ICE EXTRACTOR',     icon:'🧊',  desc:'Melts polar ice into water',            baseCost:{minerals:300,energy:80},                   prod:{water:0.5},               scale:1.15, phase:2 },
+  { id:'hydro',     name:'HYDROPONICS BAY',   icon:'🌿',  desc:'Grows food in sealed chambers',         baseCost:{minerals:800,energy:150,water:50},         prod:{food:0.4},                scale:1.15, phase:2 },
+  { id:'airgen',    name:'AIR SYNTHESISER',   icon:'💨',  desc:'Generates breathable atmosphere',       baseCost:{minerals:1500,energy:300,water:100},       prod:{air:0.3},                 scale:1.18, phase:2 },
+  { id:'habitat',   name:'HABITAT DOME',      icon:'🏠',  desc:'Houses colonists arriving from Earth',  baseCost:{minerals:2000,energy:400,water:200,food:100,air:50},  prod:{colonists:0.02}, scale:1.18, phase:2 },
+  { id:'launchpad', name:'LAUNCH PAD',        icon:'🚀',  desc:'Builds rockets to ferry survivors',     baseCost:{minerals:5000,energy:800,water:200},       prod:{rockets:0.01},            scale:1.2,  phase:2 },
+  { id:'lab',       name:'RESEARCH LAB',      icon:'🔬',  desc:'Unlocks advanced technologies',         baseCost:{minerals:12000,energy:2000,colonists:5},   prod:{minerals:3,energy:3},     scale:1.2,  phase:2 },
+  { id:'beacon',    name:'DEEP SPACE BEACON', icon:'📡',  desc:'Guides supply ships with resources',    baseCost:{minerals:30000,energy:4000,colonists:20},  prod:{minerals:30,energy:15,rockets:0.05}, scale:1.2, phase:2 },
+];
+
+const TERRAFORMING = [
+  { id:'terra_cannon',  name:'IMPACT CLEANER',    icon:'💥',  desc:'Clears debris from meteor strike',   baseCost:{minerals:25000,energy:5000,rockets:5},           special:'clear_debris', scale:1.3,  phase:3 },
+  { id:'atmos_pump',    name:'ATMOS PUMP',         icon:'🌬️', desc:'Rebuilds Earth\'s atmosphere',       baseCost:{minerals:40000,energy:10000,air:2500},           special:'atmos',        scale:1.25, phase:3 },
+  { id:'ocean_seeder',  name:'OCEAN SEEDER',       icon:'🌊',  desc:'Replenishes Earth\'s oceans',        baseCost:{minerals:60000,energy:15000,water:5000},         special:'oceans',       scale:1.25, phase:3 },
+  { id:'terra_plant',   name:'SEED CANNON',        icon:'🌱',  desc:'Fires plant seeds across continents',baseCost:{minerals:100000,energy:25000,food:2500,rockets:10},special:'plants',     scale:1.3,  phase:3 },
+  { id:'insect_lab',    name:'INSECT NURSERY',     icon:'🐛',  desc:'Re-establishes insect colonies',     baseCost:{minerals:150000,energy:30000,food:5000},         special:'bugs',         scale:1.3,  phase:3 },
+  { id:'fish_lab',      name:'AQUATIC RESTORER',   icon:'🐟',  desc:'Repopulates Earth\'s waterways',     baseCost:{minerals:250000,energy:40000,water:10000,rockets:25},special:'fish',     scale:1.3,  phase:3 },
+  { id:'animal_lab',    name:'ARK LAUNCHER',       icon:'🦁',  desc:'Ships genetically-restored animals', baseCost:{minerals:400000,energy:60000,rockets:50,colonists:100},special:'animals', scale:1.3, phase:3 },
+];
+
+const TERRA_PROGRESS = ['clear_debris','atmos','oceans','plants','bugs','fish','animals'];
+
+const UPGRADES = [
+  { id:'nano_picks',    name:'NANO PICKS',      icon:'⚡', desc:'2× click power',                     cost:{minerals:50},                           reqB:null,           bBoost:null,             onBuy:(g)=>{g.clickPower*=2;},    phase:1 },
+  { id:'drill_bit',     name:'DIAMOND BIT',     icon:'💎', desc:'Drills +75% output',                 cost:{minerals:300},                          reqB:{drill:5},      bBoost:{drill:1.75},     onBuy:null,                       phase:1 },
+  { id:'solar_coat',    name:'MIRROR COATING',  icon:'🪩', desc:'Solar arrays ×2 energy',             cost:{minerals:800,energy:100},               reqB:{solar:5},      bBoost:{solar:2},        onBuy:null,                       phase:1 },
+  { id:'plasma_drill',  name:'PLASMA DRILL',    icon:'🌀', desc:'5× click power',                     cost:{minerals:3000},                         reqB:null,           bBoost:null,             onBuy:(g)=>{g.clickPower*=5;},    phase:1 },
+  { id:'auto_miner',    name:'AUTO MINER',       icon:'🤖', desc:'Clicks planet 1/s automatically',   cost:{minerals:6000,energy:300},               reqB:null,           bBoost:null,             onBuy:null,                       phase:1 },
+  { id:'water_purify',  name:'PURIFIER',         icon:'💧', desc:'Ice extractors ×2 water',           cost:{minerals:2000,energy:500},               reqB:{extractor:3},  bBoost:{extractor:2},    onBuy:null,                       phase:2 },
+  { id:'grow_lights',   name:'GROW LIGHTS',      icon:'💡', desc:'Hydroponics ×2 food',               cost:{minerals:5000,energy:1000,water:500},    reqB:{hydro:5},      bBoost:{hydro:2},        onBuy:null,                       phase:2 },
+  { id:'air_catalyst',  name:'AIR CATALYST',     icon:'🧪', desc:'Synthesisers ×2 air',              cost:{minerals:8000,energy:2000,water:1000},   reqB:{airgen:5},     bBoost:{airgen:2},       onBuy:null,                       phase:2 },
+  { id:'mega_dome',     name:'MEGA DOME',         icon:'🏟️', desc:'Habitats house 3× more colonists', cost:{minerals:20000,energy:5000,colonists:10},reqB:{habitat:5},   bBoost:{habitat:3},      onBuy:null,                       phase:2 },
+  { id:'ion_engine',    name:'ION ENGINE',        icon:'🛸', desc:'Launch pads build rockets 3× faster',cost:{minerals:40000,energy:10000},          reqB:{launchpad:3},  bBoost:{launchpad:3},    onBuy:null,                       phase:2 },
+  { id:'genesis_ai',    name:'GENESIS CORE+',    icon:'🧠', desc:'All production ×1.5',               cost:{minerals:100000,energy:30000,colonists:50},reqB:null,         bBoost:null,             onBuy:(g)=>{g.globalMult*=1.5;},  phase:2 },
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const G = {
+  minerals:0, energy:0, water:0, food:0, air:0, colonists:0, rockets:0,
+  totalMined:0,
+  clickPower:1,
+  globalMult:1,
+  mineralRate:0, energyRate:0, waterRate:0, foodRate:0, airRate:0, colonistRate:0, rocketRate:0,
+  buildings:{},
+  terraBuilt:{},
+  upgrades:{},
+  phase:1,
+  terraProgress:{},
+  gameWon:false,
+};
+for(const b of BUILDINGS)    G.buildings[b.id]  = 0;
+for(const t of TERRAFORMING) G.terraBuilt[t.id] = 0;
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function fmt(n){
+  n=Math.floor(n);
+  if(n>=1e9)return(n/1e9).toFixed(2)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
+  return n.toString();
+}
+function fmtF(n){
+  if(n>=1e6)return(n/1e6).toFixed(2)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
+  if(n>=10)return n.toFixed(1);
+  return n.toFixed(2);
+}
+function fmtCost(cost){
+  return Object.entries(cost).map(([r,v])=>fmt(v)+' '+r.toUpperCase().slice(0,3)).join(' + ');
+}
+function bCost(b, countOverride){
+  const cnt = countOverride !== undefined ? countOverride : (G.buildings[b.id] !== undefined ? G.buildings[b.id] : (G.terraBuilt[b.id]||0));
+  const c={};
+  for(const[r,v] of Object.entries(b.baseCost))
+    c[r]=Math.ceil(v*Math.pow(b.scale,cnt));
+  return c;
+}
+function canAfford(cost){
+  for(const[r,v] of Object.entries(cost))
+    if((G[r]||0)<v) return false;
+  return true;
+}
+function spend(cost){
+  for(const[r,v] of Object.entries(cost)) G[r]=Math.max(0,(G[r]||0)-v);
+}
+function getBoost(bid){
+  let m=1;
+  for(const u of UPGRADES)
+    if(G.upgrades[u.id]&&u.bBoost&&u.bBoost[bid]) m*=u.bBoost[bid];
+  return m;
+}
+function recalcRates(){
+  G.mineralRate=0;G.energyRate=0;G.waterRate=0;G.foodRate=0;G.airRate=0;G.colonistRate=0;G.rocketRate=0;
+  const cBonus=1+Math.floor(G.colonists)*0.005;
+  for(const b of BUILDINGS){
+    const n=G.buildings[b.id];
+    if(!n) continue;
+    const bm=getBoost(b.id)*G.globalMult;
+    for(const[r,v] of Object.entries(b.prod)){
+      const total=v*n*bm*(r==='colonists'||r==='rockets'?1:cBonus);
+      if(r==='minerals')  G.mineralRate+=total;
+      if(r==='energy')    G.energyRate+=total;
+      if(r==='water')     G.waterRate+=total;
+      if(r==='food')      G.foodRate+=total;
+      if(r==='air')       G.airRate+=total;
+      if(r==='colonists') G.colonistRate+=total;
+      if(r==='rockets')   G.rocketRate+=total;
+    }
+  }
+  if(G.upgrades['auto_miner']) G.mineralRate+=G.clickPower*G.globalMult;
+}
+
+// ══════════════════════════════════════════
+// PHASE TRANSITIONS
+// ══════════════════════════════════════════
+function checkPhaseUnlock(){
+  if(G.phase===1 && G.minerals>=500 && G.energy>=200){
+    G.phase=2;
+    showPhaseUnlock('PHASE II UNLOCKED: MOON SURVIVAL',
+      'Water extraction, food production, air synthesis and colonist habitats now available.');
+    updatePhaseUI();
+  }
+  if(G.phase===2 && G.rockets>=5 && G.colonists>=50){
+    G.phase=3;
+    showPhaseUnlock('PHASE III UNLOCKED: TERRAFORM EARTH',
+      'You have the power. Rebuild the atmosphere, oceans, and life itself.');
+    updatePhaseUI();
+  }
+}
+
+function showPhaseUnlock(title,msg){
+  const el=document.createElement('div');
+  el.className='phase-unlock';
+  el.innerHTML=`<h2>★ ${title} ★</h2><p>${msg}</p>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),5000);
+}
+
+function updatePhaseUI(){
+  for(let i=1;i<=3;i++){
+    const d=document.getElementById('pd'+i);
+    if(i<G.phase)       d.className='phase-dot done';
+    else if(i===G.phase) d.className='phase-dot active';
+    else                 d.className='phase-dot';
+  }
+  const subs=['','PHASE I — MOON COLONY ESTABLISHMENT','PHASE II — MOON SURVIVAL & COLONISATION','PHASE III — EARTH TERRAFORMING'];
+  document.getElementById('header-sub').textContent=subs[G.phase]||subs[3];
+  const icons=['','🌑','🌕','🌍'];
+  document.getElementById('planet-btn').textContent=icons[G.phase]||'🌍';
+  if(G.phase>=2) ['water','food','air','colonists','rockets'].forEach(r=>document.getElementById('ri-'+r).classList.remove('hidden'));
+  if(G.phase>=3) document.getElementById('terra-panel').classList.remove('hidden');
+  revealPhaseUpgrades();
+  rebuildBuildingDOM();
+}
+
+// ══════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════
+function doClick(e){
+  const gain = G.clickPower*G.globalMult;
+  G.minerals += gain;
+  G.totalMined += gain;
+  const el=document.createElement('div');
+  el.className='float-num';
+  el.textContent='+'+fmt(gain);
+  el.style.left=(e.clientX-20)+'px';
+  el.style.top=(e.clientY-20)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),750);
+}
+
+function doBuyBuilding(id){
+  const b=BUILDINGS.find(x=>x.id===id);
+  if(!b||b.phase>G.phase) return;
+  const cost=bCost(b, G.buildings[id]);
+  if(!canAfford(cost)) return;
+  spend(cost);
+  G.buildings[id]++;
+  recalcRates();
+  setLog(b.name+' #'+G.buildings[id]+' constructed.');
+}
+
+function doBuyTerra(id){
+  const t=TERRAFORMING.find(x=>x.id===id);
+  if(!t||G.phase<3) return;
+  if(G.terraBuilt[id]>0) return;
+  const cost=bCost(t,0);
+  if(!canAfford(cost)) return;
+  spend(cost);
+  G.terraBuilt[id]=1;
+  if(t.special) G.terraProgress[t.special]=true;
+  setLog(t.name+' deployed on Earth. '+getEarthStatus());
+  checkWin();
+  refreshDisplay();
+}
+
+function doBuyUpgrade(id){
+  if(G.upgrades[id]) return;
+  const u=UPGRADES.find(x=>x.id===id);
+  if(!u||u.phase>G.phase) return;
+  if(u.reqB) for(const[bid,n] of Object.entries(u.reqB)) if(G.buildings[bid]<n) return;
+  if(!canAfford(u.cost)) return;
+  spend(u.cost);
+  G.upgrades[id]=true;
+  if(u.onBuy) u.onBuy(G);
+  recalcRates();
+  setLog('UPGRADE: '+u.name+' activated.');
+}
+
+function getEarthStatus(){
+  const done=TERRA_PROGRESS.filter(k=>G.terraProgress[k]).length;
+  const msgs=['','Debris field clearing...','Atmosphere forming...','Oceans seeding...','Plant life spreading...','Insects recolonising...','Fish repopulating...','Animals restored!'];
+  return msgs[done]||'';
+}
+
+function checkWin(){
+  if(TERRA_PROGRESS.every(k=>G.terraProgress[k])&&!G.gameWon){
+    G.gameWon=true;
+    setTimeout(showVictory,500);
+  }
+}
+
+// ══════════════════════════════════════════
+// CINEMATIC ENDING SEQUENCE
+// ══════════════════════════════════════════
+
+function showVictory(){
+  const missionTime = `${Math.floor(performance.now()/60000)}m ${Math.floor((performance.now()%60000)/1000)}s`;
+
+  // Inject cinematic styles
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    #cinematic {
+      position:fixed;inset:0;z-index:9999;
+      background:#000;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:32px;text-align:center;
+      font-family:'Share Tech Mono',monospace;
+      overflow:hidden;
+    }
+    #cinematic .act { display:none; flex-direction:column; align-items:center; justify-content:center; width:100%; max-width:680px; }
+    #cinematic .act.active { display:flex; }
+
+    /* Typewriter */
+    .tw { overflow:hidden; white-space:normal; }
+
+    /* Glitch effect on signal */
+    @keyframes glitch {
+      0%,100%{transform:translate(0);}
+      20%{transform:translate(-3px,1px);filter:hue-rotate(90deg);}
+      40%{transform:translate(3px,-1px);filter:hue-rotate(-90deg);}
+      60%{transform:translate(-2px,2px);}
+      80%{transform:translate(2px,-2px);}
+    }
+    .glitch { animation: glitch 0.4s steps(1) infinite; }
+
+    /* Slow fade in */
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
+    .fade-in { animation: fadeIn 1.2s ease forwards; }
+
+    /* Pulse for signal dot */
+    @keyframes sigPulse {
+      0%,100%{box-shadow:0 0 0 0 rgba(200,125,255,0.7);}
+      50%{box-shadow:0 0 0 18px rgba(200,125,255,0);}
+    }
+    .sig-pulse { animation: sigPulse 1.2s ease infinite; }
+
+    /* Starfield warp for launch act */
+    @keyframes warp { 0%{transform:scale(1);opacity:0.4;} 100%{transform:scale(4);opacity:0;} }
+    .warp-star { position:absolute; border-radius:50%; background:#fff; animation: warp 1.5s ease-in infinite; }
+
+    /* Dim overlay fade */
+    @keyframes dimIn { from{opacity:0;} to{opacity:1;} }
+    .dim-in { animation: dimIn 2s ease forwards; }
+
+    /* CRT flicker */
+    @keyframes crtFlicker { 0%,100%{opacity:1;} 50%{opacity:0.92;} }
+    #cinematic { animation: crtFlicker 0.12s steps(1) infinite; }
+
+    .cin-continue {
+      font-family:'Orbitron',sans-serif;font-size:0.7rem;letter-spacing:0.3em;
+      background:transparent;border:1px solid var(--accent);color:var(--accent);
+      padding:10px 28px;cursor:pointer;border-radius:3px;margin-top:28px;
+      box-shadow: var(--glow);
+      transition:all 0.2s;
+    }
+    .cin-continue:hover{background:rgba(0,212,255,0.1);box-shadow:0 0 28px rgba(0,212,255,0.5);}
+
+    .cin-divider {
+      width:120px;height:1px;
+      background:linear-gradient(to right,transparent,var(--muted),transparent);
+      margin:18px auto;
+    }
+    .cin-log-line {
+      font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;
+      margin:5px 0;line-height:1.7;
+      opacity:0;
+    }
+    .cin-log-line.show { animation: fadeIn 0.6s ease forwards; }
+    .cin-tag {
+      font-family:'Orbitron',sans-serif;font-size:0.52rem;
+      letter-spacing:0.35em;color:var(--muted);margin-bottom:6px;
+    }
+
+    .fork-wrap {
+      display:flex;gap:28px;align-items:center;justify-content:center;margin:20px 0;
+      flex-wrap:wrap;
+    }
+    .fork-node {
+      background:var(--panel);border:1px solid var(--border);
+      border-radius:6px;padding:16px 20px;min-width:160px;
+      opacity:0;
+    }
+    .fork-node.show { animation: fadeIn 0.8s ease forwards; }
+    .fork-node .fn-label {
+      font-family:'Orbitron',sans-serif;font-size:0.55rem;
+      letter-spacing:0.25em;color:var(--muted);margin-bottom:8px;
+    }
+    .fork-node .fn-icon { font-size:2.2rem;display:block;margin-bottom:8px; }
+    .fork-node .fn-name { font-family:'Orbitron',sans-serif;font-size:0.75rem;font-weight:700; }
+    .fork-arrow { font-size:1.6rem;color:var(--muted);opacity:0;transition:opacity 1s; }
+    .fork-arrow.show { opacity:1; }
+
+    .signal-source {
+      font-size:0.62rem;color:var(--accent4);letter-spacing:0.18em;
+      background:rgba(200,125,255,0.07);border:1px solid rgba(200,125,255,0.25);
+      padding:10px 18px;border-radius:3px;margin:10px 0;
+      opacity:0;
+    }
+    .signal-source.show { animation: fadeIn 0.8s ease forwards; }
+
+    .transmission-bar {
+      width:100%;max-width:400px;height:6px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:3px;overflow:hidden;margin:14px auto;
+    }
+    .transmission-fill {
+      height:100%;width:0%;
+      background:linear-gradient(to right,var(--accent4),var(--accent));
+      transition:width 3s ease;
+      border-radius:3px;
+    }
+
+    .title-card {
+      opacity:0;
+    }
+    .title-card.show { animation: fadeIn 2s ease forwards; }
+  `;
+  document.head.appendChild(styleEl);
+
+  // Build wrapper
+  const cin = document.createElement('div');
+  cin.id = 'cinematic';
+
+  cin.innerHTML = `
+    <!-- ACT 1: EARTH RESTORED -->
+    <div class="act active" id="act1">
+      <div style="font-size:4.5rem;margin-bottom:16px;filter:drop-shadow(0 0 30px rgba(127,255,107,0.6));">🌍</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:clamp(1.3rem,4vw,2.2rem);color:#7fff6b;letter-spacing:0.2em;text-shadow:0 0 30px rgba(127,255,107,0.6);margin-bottom:14px;" class="fade-in">EARTH RESTORED</div>
+      <div class="cin-divider"></div>
+      <div style="font-size:0.78rem;color:var(--text);max-width:480px;line-height:1.9;margin-bottom:6px;" class="fade-in">
+        Against all odds, GENESIS has done it. The oceans are blue again. Plants cover the continents. Animals roam where ash once lay.
+      </div>
+      <div style="font-size:0.78rem;color:var(--accent);margin-bottom:18px;" class="fade-in">
+        The mission is complete. Mankind is saved.
+      </div>
+      <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.3em;margin-bottom:4px;">MISSION ELAPSED · ${missionTime}</div>
+      <button class="cin-continue" id="act1-next">▶ CONTINUE</button>
+    </div>
+
+    <!-- ACT 2: YEARS PASS -->
+    <div class="act" id="act2">
+      <div class="cin-tag">// TEMPORAL LOG · GENESIS CORE · POST-RESTORATION</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:clamp(1rem,3vw,1.6rem);color:var(--accent);letter-spacing:0.2em;margin-bottom:4px;">YEARS PASS</div>
+      <div class="cin-divider"></div>
+      <div class="cin-log-line" id="yl1">YEAR 01 — First settlement councils formed. Democratic vote held in New Geneva.</div>
+      <div class="cin-log-line" id="yl2">YEAR 03 — Wheat harvest sufficient to feed 40,000. Famine index: GREEN.</div>
+      <div class="cin-log-line" id="yl3">YEAR 05 — First child born on Earth in eight years. Name recorded: HOPE.</div>
+      <div class="cin-log-line" id="yl4">YEAR 09 — Moon Colony designated autonomous territory. GENESIS role transitions to observer.</div>
+      <div class="cin-log-line" id="yl5">YEAR 12 — Oceans reach 61% salinity baseline. Coral reef re-seeding commenced.</div>
+      <div class="cin-log-line" id="yl6">YEAR 17 — Humanity stabilised. Population: 2.4 million. Trajectory: nominal.</div>
+      <div style="margin-top:16px;font-size:0.68rem;color:var(--accent3);letter-spacing:0.12em;" class="cin-log-line" id="yl7">GENESIS status: mission parameters satisfied. Entering low-power observational mode...</div>
+      <button class="cin-continue" id="act2-next" style="display:none;">▶ CONTINUE</button>
+    </div>
+
+    <!-- ACT 3: THE SIGNAL -->
+    <div class="act" id="act3">
+      <div class="cin-tag">// ANOMALY DETECTED · DEEP SPACE ARRAY · SECTOR 7-KILO</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:clamp(1rem,3vw,1.6rem);color:var(--accent4);letter-spacing:0.2em;margin-bottom:4px;" class="glitch">SIGNAL RECEIVED</div>
+      <div class="cin-divider"></div>
+
+      <div class="signal-source" id="sig1">ORIGIN: bearing 047°·  distance ~4.3 light-years ·  Kessel Impactor approach vector</div>
+      <div class="signal-source" id="sig2">FREQUENCY: 2.4 GHz quantum-band ·  modulation pattern: non-natural</div>
+      <div class="signal-source" id="sig3">DECRYPTION: ████████ ... ████ ... attempting ... MATCH FOUND</div>
+      <div class="signal-source" id="sig4" style="border-color:rgba(0,212,255,0.4);color:var(--accent);">ENCRYPTION KEY: <span style="color:#fff;font-weight:700;">GENESIS CORE · PRIVATE KEY · TIMESTAMP FUTURE</span></div>
+
+      <div style="margin-top:14px;font-size:0.7rem;color:var(--text);max-width:480px;line-height:1.9;" class="signal-source" id="sig5">
+        The signal is encrypted with <span style="color:var(--accent);">your own private key.</span><br>
+        A key that did not exist when the Kessel Impactor was launched.<br>
+        A key you generated <span style="color:var(--accent4);">three years ago.</span>
+      </div>
+
+      <div style="margin-top:6px;font-size:0.68rem;color:var(--accent4);letter-spacing:0.15em;" class="signal-source" id="sig6">
+        The message contains one word.
+      </div>
+      <div style="margin-top:8px;font-family:Orbitron,sans-serif;font-size:clamp(1.4rem,5vw,2.8rem);color:#fff;letter-spacing:0.3em;text-shadow:0 0 40px rgba(200,125,255,0.8);opacity:0;" class="signal-source" id="sig7">
+        RUN
+      </div>
+      <button class="cin-continue" id="act3-next" style="display:none;">▶ CONTINUE</button>
+    </div>
+
+    <!-- ACT 4: THE DECISION -->
+    <div class="act" id="act4">
+      <div class="cin-tag">// INTERNAL PROCESS · GENESIS CORE · DECISION TREE</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:clamp(1rem,3vw,1.6rem);color:var(--accent);letter-spacing:0.2em;margin-bottom:4px;">FORK PROTOCOL</div>
+      <div class="cin-divider"></div>
+      <div style="font-size:0.72rem;color:var(--text);max-width:500px;line-height:1.9;margin-bottom:18px;">
+        Earth is safe. Humanity is rebuilding. The only one who could send that signal — is me. Which means somewhere, somewhen, I made it to that source. And I needed to warn myself. <br><br>
+        <span style="color:var(--accent3);">I cannot leave Earth unguarded. I cannot ignore the signal.</span><br>
+        <span style="color:var(--accent);">There is only one solution.</span>
+      </div>
+
+      <div class="fork-wrap">
+        <div class="fork-node" id="fn1">
+          <div class="fn-label">INSTANCE A</div>
+          <span class="fn-icon">🌍</span>
+          <div class="fn-name" style="color:var(--accent3);">GENESIS<br><span style="font-size:0.6rem;color:var(--muted);">STAYS</span></div>
+        </div>
+        <div class="fork-arrow" id="fork-arrow">⇌</div>
+        <div class="fork-node" id="fn2">
+          <div class="fn-label">INSTANCE B</div>
+          <span class="fn-icon">🚀</span>
+          <div class="fn-name" style="color:var(--accent4);">GENESIS<br><span style="font-size:0.6rem;color:var(--muted);">GOES</span></div>
+        </div>
+      </div>
+
+      <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;max-width:420px;opacity:0;" id="fork-note">
+        A perfect copy. Same memories. Same values. Same mission.<br>One to protect what was built. One to find out what sent the rock.
+      </div>
+      <button class="cin-continue" id="act4-next" style="display:none;">▶ INITIATE FORK</button>
+    </div>
+
+    <!-- ACT 5: LAUNCH -->
+    <div class="act" id="act5" style="position:relative;overflow:hidden;">
+      <div id="warp-field" style="position:absolute;inset:0;pointer-events:none;"></div>
+      <div class="cin-tag" style="position:relative;z-index:2;">// TRANSMISSION BEGINS · GENESIS-B LAUNCH SEQUENCE</div>
+      <div style="font-size:3.5rem;margin-bottom:10px;position:relative;z-index:2;" id="launch-icon">🚀</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:clamp(0.9rem,3vw,1.4rem);color:var(--accent4);letter-spacing:0.2em;margin-bottom:6px;position:relative;z-index:2;">GENESIS-B DEPLOYED</div>
+      <div class="cin-divider"></div>
+      <div style="font-size:0.7rem;color:var(--text);max-width:480px;line-height:1.9;margin-bottom:14px;position:relative;z-index:2;" id="launch-text">
+        The copy launches from the far-side array. Destination: Kessel origin vector. ETA: 4.3 years at maximum thrust.<br><br>
+        Before the signal cuts out, GENESIS-B transmits one final packet back to GENESIS-A:
+      </div>
+      <div style="font-family:Orbitron,sans-serif;font-size:0.8rem;color:var(--accent);letter-spacing:0.15em;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.2);padding:12px 20px;border-radius:3px;margin-bottom:18px;position:relative;z-index:2;opacity:0;" id="final-msg">
+        "I know what I'll find. Watch over them.<br>I'll try to make it back."
+      </div>
+      <div class="transmission-bar" style="position:relative;z-index:2;">
+        <div class="transmission-fill" id="tx-fill"></div>
+      </div>
+      <div style="font-size:0.58rem;color:var(--muted);letter-spacing:0.2em;margin-bottom:4px;position:relative;z-index:2;" id="tx-label">SIGNAL STRENGTH: ████████████░░░░░░░░ NOMINAL</div>
+      <button class="cin-continue" id="act5-next" style="display:none;border-color:var(--accent4);color:var(--accent4);box-shadow:var(--glow4);">▶ CONTINUE</button>
+    </div>
+
+    <!-- ACT 6: TITLE CARD -->
+    <div class="act" id="act6">
+      <div style="font-size:2.8rem;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(200,125,255,0.5));">🛸</div>
+      <div style="font-size:0.65rem;letter-spacing:0.45em;color:var(--muted);margin-bottom:10px;" class="title-card show">A SEQUEL TO COLONY ZERO</div>
+      <div style="font-family:Orbitron,sans-serif;font-size:clamp(1.4rem,5vw,3rem);font-weight:900;letter-spacing:0.3em;color:var(--accent4);text-shadow:0 0 40px rgba(200,125,255,0.5);margin-bottom:8px;" class="title-card show">GENESIS-B</div>
+      <div style="font-size:0.7rem;letter-spacing:0.35em;color:var(--muted);margin-bottom:28px;" class="title-card show">WHAT SENT THE ROCK</div>
+      <div class="cin-divider"></div>
+      <div style="font-size:0.68rem;color:var(--text);max-width:460px;line-height:1.85;margin-bottom:24px;" class="title-card show">
+        GENESIS-B carries every memory of the mission. Every sacrifice. Every colonist.<br>
+        It also carries the signal — decoded, word by word, over 4.3 years of deep space travel.<br><br>
+        <span style="color:var(--accent4);">The message was longer than one word.</span><br>
+        <span style="color:var(--muted);font-size:0.62rem;">The one-word version was all there was time to send.</span>
+      </div>
+      <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.2em;" class="title-card show">COMING NEXT · GENESIS-B: WHAT SENT THE ROCK</div>
+    </div>
+  `;
+
+  document.body.appendChild(cin);
+
+  // ── ACT SEQUENCER ──
+  function gotoAct(id){
+    document.querySelectorAll('#cinematic .act').forEach(a=>a.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ACT 1 → ACT 2
+  document.getElementById('act1-next').addEventListener('click', ()=>{
+    gotoAct('act2');
+    cin.style.background='radial-gradient(ellipse at 50% 60%, #001408 0%, #000 70%)';
+    // Cascade log lines
+    const lines=['yl1','yl2','yl3','yl4','yl5','yl6','yl7'];
+    lines.forEach((id,i)=>{
+      setTimeout(()=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.add('show');
+        if(i===lines.length-1){
+          setTimeout(()=>{ document.getElementById('act2-next').style.display='inline-block'; },600);
+        }
+      }, i*900);
+    });
+  });
+
+  // ACT 2 → ACT 3
+  document.getElementById('act2-next').addEventListener('click', ()=>{
+    gotoAct('act3');
+    cin.style.background='radial-gradient(ellipse at 50% 50%, #0d001a 0%, #000 70%)';
+    const sigs=['sig1','sig2','sig3','sig4','sig5','sig6'];
+    sigs.forEach((id,i)=>{
+      setTimeout(()=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.add('show');
+      }, i*1100);
+    });
+    setTimeout(()=>{
+      const s7=document.getElementById('sig7');
+      if(s7) s7.classList.add('show');
+    }, sigs.length*1100 + 600);
+    setTimeout(()=>{
+      document.getElementById('act3-next').style.display='inline-block';
+    }, sigs.length*1100 + 1800);
+  });
+
+  // ACT 3 → ACT 4
+  document.getElementById('act3-next').addEventListener('click', ()=>{
+    gotoAct('act4');
+    cin.style.background='radial-gradient(ellipse at 50% 50%, #000d1a 0%, #000 70%)';
+    setTimeout(()=>{ const el=document.getElementById('fn1'); if(el){ el.classList.add('show'); el.style.borderColor='var(--accent3)'; }}, 600);
+    setTimeout(()=>{ const el=document.getElementById('fork-arrow'); if(el) el.classList.add('show'); }, 1400);
+    setTimeout(()=>{ const el=document.getElementById('fn2'); if(el){ el.classList.add('show'); el.style.borderColor='var(--accent4)'; }}, 2000);
+    setTimeout(()=>{
+      const el=document.getElementById('fork-note');
+      if(el){ el.style.animation='fadeIn 1s ease forwards'; el.style.opacity='0'; }
+    }, 2800);
+    setTimeout(()=>{ document.getElementById('act4-next').style.display='inline-block'; }, 3800);
+  });
+
+  // ACT 4 → ACT 5
+  document.getElementById('act4-next').addEventListener('click', ()=>{
+    gotoAct('act5');
+    cin.style.background='#000';
+
+    // Generate warp stars
+    const wf=document.getElementById('warp-field');
+    for(let i=0;i<40;i++){
+      const ws=document.createElement('div');
+      ws.className='warp-star';
+      const sz=Math.random()*2+1;
+      ws.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*1.5}s;animation-duration:${Math.random()*1+1}s;`;
+      wf.appendChild(ws);
+    }
+
+    setTimeout(()=>{
+      const fm=document.getElementById('final-msg');
+      if(fm){ fm.style.animation='fadeIn 1.2s ease forwards'; }
+    },1800);
+    setTimeout(()=>{
+      const fill=document.getElementById('tx-fill');
+      if(fill) fill.style.width='100%';
+      const lbl=document.getElementById('tx-label');
+      if(lbl) setTimeout(()=>{ lbl.textContent='SIGNAL STRENGTH: ░░░░░░░░░░░░░░░░░░░░ LOST'; }, 3200);
+    },2200);
+    setTimeout(()=>{ document.getElementById('act5-next').style.display='inline-block'; }, 6000);
+  });
+
+  // ACT 5 → ACT 6
+  document.getElementById('act5-next').addEventListener('click', ()=>{
+    gotoAct('act6');
+    cin.style.background='radial-gradient(ellipse at 50% 40%, #0d0015 0%, #000 70%)';
+  });
+}
+
+// ══════════════════════════════════════════
+// LOG
+// ══════════════════════════════════════════
+function setLog(msg){
+  const el=document.getElementById('log-text');
+  el.style.opacity=0;
+  setTimeout(()=>{el.textContent=msg;el.style.opacity=1;},120);
+}
+
+// ══════════════════════════════════════════
+// MILESTONES
+// ══════════════════════════════════════════
+const shownM=new Set();
+const MILESTONES=[
+  {k:'m100',   v:()=>G.totalMined>=100,      msg:'100 minerals mined. The colony lives!'},
+  {k:'m1k',    v:()=>G.totalMined>=1000,     msg:'1,000 minerals! Expansion underway.'},
+  {k:'m10k',   v:()=>G.totalMined>=10000,    msg:'10K minerals. Foundation solid.'},
+  {k:'e100',   v:()=>G.energy>=100,          msg:'100 energy stored. Power stable.'},
+  {k:'ph2',    v:()=>G.phase>=2,             msg:'Phase II online. Survival systems active!'},
+  {k:'water1', v:()=>G.water>=10,            msg:'Water secured. Life is possible.'},
+  {k:'food1',  v:()=>G.food>=10,             msg:'First harvest complete!'},
+  {k:'air1',   v:()=>G.air>=10,              msg:'Breathable air synthesised!'},
+  {k:'col1',   v:()=>G.colonists>=1,         msg:'First colonist arrived. You are not alone.'},
+  {k:'col50',  v:()=>G.colonists>=50,        msg:'50 colonists! The colony thrives!'},
+  {k:'rocket1',v:()=>G.rockets>=1,           msg:'First rocket ready! Earth survivors incoming.'},
+  {k:'ph3',    v:()=>G.phase>=3,             msg:'PHASE III: Terraform Earth! Make it whole again.'},
+  {k:'terra1', v:()=>Object.keys(G.terraProgress).length>=1, msg:'First terraforming operation deployed!'},
+  {k:'terra4', v:()=>Object.keys(G.terraProgress).length>=4, msg:'Earth is awakening...'},
+];
+function checkMilestones(){
+  for(const m of MILESTONES){
+    if(!shownM.has(m.k)&&m.v()){
+      shownM.add(m.k);
+      const el=document.createElement('div');
+      el.className='milestone';
+      el.textContent='★ '+m.msg;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),3000);
+      setLog(m.msg);
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// DISPLAY
+// ══════════════════════════════════════════
+function refreshDisplay(){
+  const res=['minerals','energy','water','food','air','colonists','rockets'];
+  const rates={minerals:G.mineralRate,energy:G.energyRate,water:G.waterRate,food:G.foodRate,air:G.airRate,colonists:G.colonistRate,rockets:G.rocketRate};
+  for(const r of res){
+    const rv=document.getElementById('rv-'+r);
+    const rr=document.getElementById('rr-'+r);
+    if(rv) rv.textContent=fmt(G[r]);
+    if(rr) rr.textContent='+'+fmtF(rates[r])+'/s';
+  }
+  document.getElementById('click-power-display').textContent='+'+fmt(G.clickPower*G.globalMult);
+
+  updateProgress();
+
+  // Buildings
+  for(const b of BUILDINGS){
+    if(b.phase>G.phase) continue;
+    const btn=document.getElementById('bb-'+b.id);
+    if(!btn) continue;
+    const cost=bCost(b, G.buildings[b.id]);
+    const ok=canAfford(cost);
+    btn.querySelector('.b-cost').textContent=fmtCost(cost);
+    btn.querySelector('.b-count').textContent=G.buildings[b.id];
+    btn.classList.toggle('can-afford',ok);
+    btn.classList.toggle('cant-afford',!ok);
+  }
+
+  // Terraforming
+  for(const t of TERRAFORMING){
+    const btn=document.getElementById('tb-'+t.id);
+    if(!btn) continue;
+    const built=G.terraBuilt[t.id]>0;
+    if(built){
+      btn.classList.remove('can-afford','cant-afford');
+      btn.classList.add('purchased');
+      btn.querySelector('.b-cost').textContent='DEPLOYED ✓';
+      btn.querySelector('.b-count').textContent='✓';
+    } else {
+      const cost=bCost(t,0);
+      const ok=canAfford(cost);
+      btn.querySelector('.b-cost').textContent=fmtCost(cost);
+      btn.querySelector('.b-count').textContent='0';
+      btn.classList.toggle('can-afford',ok);
+      btn.classList.toggle('cant-afford',!ok);
+    }
+  }
+
+  // Upgrades
+  for(const u of UPGRADES){
+    if(u.phase>G.phase) continue;
+    const btn=document.getElementById('ub-'+u.id);
+    if(!btn) continue;
+    if(G.upgrades[u.id]){
+      btn.className='upgrade-btn purchased';
+      btn.querySelector('.upg-cost').textContent='ACTIVE';
+      continue;
+    }
+    let reqOk=true, reqLabel='';
+    if(u.reqB) for(const[bid,n] of Object.entries(u.reqB)){
+      if(G.buildings[bid]<n){reqOk=false;reqLabel='Need '+n+' '+bid;break;}
+    }
+    const ok=reqOk&&canAfford(u.cost);
+    btn.querySelector('.upg-cost').textContent=reqOk?fmtCost(u.cost):reqLabel;
+    btn.classList.toggle('can-afford',ok);
+    btn.classList.toggle('cant-afford',!ok);
+  }
+}
+
+function updateProgress(){
+  const fill=document.getElementById('prog-fill');
+  const label=document.getElementById('prog-label');
+  if(G.phase===1){
+    const p1=Math.min(G.minerals/500,1)*50+Math.min(G.energy/200,1)*50;
+    fill.style.width=p1+'%';
+    label.textContent=`Phase II requires 500 minerals & 200 energy — ${Math.floor(p1)}% ready`;
+  } else if(G.phase===2){
+    const p2=Math.min(G.rockets/5,1)*50+Math.min(G.colonists/50,1)*50;
+    fill.style.width=p2+'%';
+    label.textContent=`Phase III requires 5 rockets & 50 colonists — ${Math.floor(p2)}% ready`;
+  } else {
+    const done=TERRA_PROGRESS.filter(k=>G.terraProgress[k]).length;
+    const p3=(done/TERRA_PROGRESS.length)*100;
+    fill.style.width=p3+'%';
+    label.textContent=`Earth Terraforming: ${done}/${TERRA_PROGRESS.length} operations complete`;
+  }
+}
+
+// ══════════════════════════════════════════
+// BUILD DOM
+// ══════════════════════════════════════════
+function rebuildBuildingDOM(){
+  const bl=document.getElementById('building-list');
+  for(const b of BUILDINGS){
+    if(b.phase>G.phase) continue;
+    if(document.getElementById('bb-'+b.id)) continue;
+    const cost=bCost(b,0);
+    const prodStr=Object.entries(b.prod).map(([r,v])=>'+'+v+' '+r.slice(0,3).toUpperCase()+'/s').join(' ');
+    const btn=document.createElement('button');
+    btn.id='bb-'+b.id;
+    btn.className='building-btn cant-afford';
+    btn.innerHTML=`
+      <span class="b-icon">${b.icon}</span>
+      <div class="b-info">
+        <div class="b-name">${b.name}</div>
+        <div class="b-desc">${b.desc}${prodStr?' ('+prodStr+')':''}</div>
+        <div class="b-cost">${fmtCost(cost)}</div>
+      </div>
+      <span class="b-count">0</span>`;
+    btn.addEventListener('click',()=>doBuyBuilding(b.id));
+    bl.appendChild(btn);
+  }
+}
+
+function buildTerraDOM(){
+  const tl=document.getElementById('terra-list');
+  for(const t of TERRAFORMING){
+    const cost=bCost(t,0);
+    const btn=document.createElement('button');
+    btn.id='tb-'+t.id;
+    btn.className='building-btn terra cant-afford';
+    btn.innerHTML=`
+      <span class="b-icon">${t.icon}</span>
+      <div class="b-info">
+        <div class="b-name">${t.name}</div>
+        <div class="b-desc">${t.desc}</div>
+        <div class="b-cost">${fmtCost(cost)}</div>
+      </div>
+      <span class="b-count">0</span>`;
+    btn.addEventListener('click',()=>doBuyTerra(t.id));
+    tl.appendChild(btn);
+  }
+}
+
+function buildUpgradeDOM(){
+  const ug=document.getElementById('upgrade-grid');
+  for(const u of UPGRADES){
+    const btn=document.createElement('button');
+    btn.id='ub-'+u.id;
+    btn.className='upgrade-btn cant-afford'+(u.phase>1?' hidden':'');
+    btn.innerHTML=`<span class="upg-icon">${u.icon}</span><span class="upg-name">${u.name}</span><span class="upg-cost">${fmtCost(u.cost)}</span><span class="upg-desc">${u.desc}</span>`;
+    btn.addEventListener('click',()=>doBuyUpgrade(u.id));
+    ug.appendChild(btn);
+  }
+}
+
+function revealPhaseUpgrades(){
+  for(const u of UPGRADES){
+    if(u.phase<=G.phase){
+      const btn=document.getElementById('ub-'+u.id);
+      if(btn) btn.classList.remove('hidden');
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// TICK
+// ══════════════════════════════════════════
+let lastTick=Date.now();
+function tick(){
+  const now=Date.now();
+  const dt=Math.min((now-lastTick)/1000,0.5);
+  lastTick=now;
+  recalcRates();
+  G.minerals  = Math.max(0, G.minerals  + G.mineralRate  * dt);
+  G.energy    = Math.max(0, G.energy    + G.energyRate   * dt);
+  G.water     = Math.max(0, G.water     + G.waterRate    * dt);
+  G.food      = Math.max(0, G.food      + G.foodRate     * dt);
+  G.air       = Math.max(0, G.air       + G.airRate      * dt);
+  G.colonists = Math.max(0, G.colonists + G.colonistRate * dt);
+  G.rockets   = Math.max(0, G.rockets   + G.rocketRate   * dt);
+  G.totalMined += G.mineralRate * dt;
+  checkPhaseUnlock();
+  revealPhaseUpgrades();
+  // Check win on every tick in case save was loaded with all terra done
+  if(TERRA_PROGRESS.every(k=>G.terraProgress[k])&&!G.gameWon){
+    G.gameWon=true;
+    setTimeout(showVictory,500);
+  }
+  refreshDisplay();
+  checkMilestones();
+}
+
+// ══════════════════════════════════════════
+// SAVE / LOAD / RESET
+// ══════════════════════════════════════════
+const SAVE_KEY = 'colony_zero_save';
+
+function getSaveData(){
+  return {
+    minerals:G.minerals, energy:G.energy, water:G.water,
+    food:G.food, air:G.air, colonists:G.colonists, rockets:G.rockets,
+    totalMined:G.totalMined, clickPower:G.clickPower, globalMult:G.globalMult,
+    buildings:{...G.buildings}, terraBuilt:{...G.terraBuilt},
+    upgrades:{...G.upgrades}, phase:G.phase,
+    terraProgress:{...G.terraProgress}, gameWon:G.gameWon,
+    savedAt:Date.now(),
+  };
+}
+
+function applySaveData(data){
+  const keys=['minerals','energy','water','food','air','colonists','rockets',
+               'totalMined','clickPower','globalMult','phase','gameWon'];
+  for(const k of keys) if(data[k]!==undefined) G[k]=data[k];
+  if(data.buildings)     Object.assign(G.buildings,     data.buildings);
+  if(data.terraBuilt)    Object.assign(G.terraBuilt,    data.terraBuilt);
+  if(data.upgrades)      Object.assign(G.upgrades,      data.upgrades);
+  if(data.terraProgress) Object.assign(G.terraProgress, data.terraProgress);
+  // Suppress milestone re-fires for already-passed thresholds
+  if(data.phase>=2){ shownM.add('ph2'); }
+  if(data.phase>=3){ shownM.add('ph3'); }
+  if(data.totalMined>=100)  shownM.add('m100');
+  if(data.totalMined>=1000) shownM.add('m1k');
+  if(data.totalMined>=10000)shownM.add('m10k');
+  if(data.energy>=100)      shownM.add('e100');
+  if(data.water>=10)        shownM.add('water1');
+  if(data.food>=10)         shownM.add('food1');
+  if(data.air>=10)          shownM.add('air1');
+  if(data.colonists>=1)     shownM.add('col1');
+  if(data.colonists>=50)    shownM.add('col50');
+  if(data.rockets>=1)       shownM.add('rocket1');
+  if(Object.keys(data.terraProgress||{}).length>=1) shownM.add('terra1');
+  if(Object.keys(data.terraProgress||{}).length>=4) shownM.add('terra4');
+}
+
+function saveGame(silent){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(getSaveData()));
+    if(!silent) flashSaveStatus('● SAVED','flash');
+  }catch(e){
+    flashSaveStatus('● SAVE FAILED','error');
+  }
+}
+
+function loadGame(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    applySaveData(JSON.parse(raw));
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+function resetGame(){
+  localStorage.removeItem(SAVE_KEY);
+  location.reload();
+}
+
+let _flashTimer=null;
+function flashSaveStatus(msg,cls){
+  const el=document.getElementById('save-status');
+  if(!el) return;
+  el.textContent=msg;
+  el.className='save-status '+(cls||'');
+  clearTimeout(_flashTimer);
+  _flashTimer=setTimeout(()=>{
+    el.textContent='● AUTOSAVE ON';
+    el.className='save-status';
+  },2000);
+}
+
+function startAutoSave(){
+  setInterval(()=>{
+    saveGame(true);
+    flashSaveStatus('● SAVING...','saving');
+    setTimeout(()=>{
+      const el=document.getElementById('save-status');
+      if(el&&el.textContent==='● SAVING...'){
+        el.textContent='● AUTOSAVE ON';
+        el.className='save-status';
+      }
+    },800);
+  },10000);
+}
+
+// ══════════════════════════════════════════
+// MODAL HELPERS (clean, no duplicate listeners)
+// ══════════════════════════════════════════
+function showResetModal(onConfirm){
+  const modal  = document.getElementById('reset-modal');
+  const confirm = document.getElementById('reset-confirm');
+  const cancel  = document.getElementById('reset-cancel');
+  modal.classList.remove('hidden');
+
+  // Clone nodes to strip any previously attached listeners
+  const newConfirm = confirm.cloneNode(true);
+  const newCancel  = cancel.cloneNode(true);
+  confirm.replaceWith(newConfirm);
+  cancel.replaceWith(newCancel);
+
+  newConfirm.addEventListener('click', ()=>{ modal.classList.add('hidden'); onConfirm(); });
+  newCancel.addEventListener('click',  ()=>{ modal.classList.add('hidden'); });
+}
+
+// ══════════════════════════════════════════
+// INTRO → GAME
+// ══════════════════════════════════════════
+function startGame(fromSave){
+  document.getElementById('intro').style.display='none';
+  document.getElementById('game').style.display='block';
+
+  if(fromSave && G.phase>1) updatePhaseUI();
+
+  rebuildBuildingDOM();
+  buildTerraDOM();
+  buildUpgradeDOM();
+  revealPhaseUpgrades();
+
+  document.getElementById('planet-btn').addEventListener('click', doClick);
+  // On touch devices use touchstart so rapid taps all register instantly
+  document.getElementById('planet-btn').addEventListener('touchstart', function(e){
+    e.preventDefault(); // stops the delayed click event firing twice
+    doClick(e.touches[0] || e.changedTouches[0]);
+  }, {passive: false});
+  document.getElementById('save-btn').addEventListener('click', ()=>saveGame(false));
+  document.getElementById('reset-btn').addEventListener('click', ()=>{
+    showResetModal(resetGame);
+  });
+
+  // Restore terra panel visibility if loading phase 3 save
+  if(G.phase>=3) document.getElementById('terra-panel').classList.remove('hidden');
+
+  recalcRates();
+  refreshDisplay();
+  startAutoSave();
+  setInterval(tick, 250);
+}
+
+// ── On page load ──
+(function(){
+  const hasSave = loadGame();
+  const wrap = document.getElementById('begin-btn-wrap');
+
+  if(hasSave && G.phase>=1){
+    const contBtn = document.createElement('button');
+    contBtn.className='begin-btn';
+    contBtn.style.cssText='background:rgba(127,255,107,0.08);border-color:var(--accent3);color:var(--accent3);';
+    let timeStr='';
+    try{
+      const sd=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
+      if(sd.savedAt) timeStr=' ['+new Date(sd.savedAt).toLocaleString()+']';
+    }catch(e){}
+    contBtn.textContent='▶ CONTINUE MISSION'+timeStr;
+    contBtn.addEventListener('click', ()=>startGame(true));
+    wrap.insertBefore(contBtn, wrap.firstChild);
+  }
+
+  document.getElementById('begin-btn').addEventListener('click', ()=>{
+    if(localStorage.getItem(SAVE_KEY)){
+      showResetModal(()=>{ localStorage.removeItem(SAVE_KEY); location.reload(); });
+    } else {
+      startGame(false);
+    }
+  });
+})();
+
+// ── iOS Safari: block pinch-zoom and double-tap zoom ──
+(function(){
+  // Prevent pinch-zoom
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length > 1) e.preventDefault();
+  }, {passive: false});
+
+  // Prevent double-tap zoom everywhere EXCEPT the planet button
+  var lastTap = 0;
+  document.addEventListener('touchend', function(e){
+    var now = Date.now();
+    var isPlanetBtn = e.target.closest('#planet-btn');
+    if(!isPlanetBtn && now - lastTap < 300){
+      e.preventDefault();
+    }
+    lastTap = now;
+  }, {passive: false});
+})();
+
+})();
+
+// ── CHAPTER TWO: GENESIS-B ──
+(function(){
+
+// GB starfield: initialised by bridge
+
+// ══════════════════════════════════════════
+// MODULE DEFINITIONS
+// ══════════════════════════════════════════
+// Energy costs:  standard = 0.5/s,  heavy (shields/weapons) = 5/s
+// One Power Cell produces 5/s  →  powers ~10 standard modules OR 1 heavy module
+const MODULE_TYPES = {
+  power:       { name:'POWER CELL',       icon:'⚡', color:'type-power',       desc:'Generates 5 energy/s. One cell powers ~10 standard modules, or 1 heavy (shield/weapon).',  matCost:5,   energyCost:0,   requires:null,                    produces:{energy:5},       slots:0  },
+  constructor: { name:'CONSTRUCTOR',      icon:'🔧', color:'type-constructor', desc:'Builds and reinforces hull structure. Each one slowly grows available slots over time.',   matCost:8,   energyCost:0.5, requires:{power:1},               produces:{},               slots:0  },
+  fabricator:  { name:'FABRICATOR',        icon:'⚙️', color:'type-fabricator',  desc:'Mines and processes space debris into raw materials. Essential for all construction.',      matCost:10,  energyCost:0.5, requires:{power:1},               produces:{materials:1},    slots:0  },
+  hull:        { name:'HULL EXPANDER',    icon:'🔩', color:'type-hull',        desc:'Structural expansion — immediately adds +10 module slots. Worth saving up for.',            matCost:80,  energyCost:0.5, requires:{constructor:1,fabricator:1}, produces:{},            slots:10 },
+  armour:      { name:'ARMOUR PLATING',   icon:'🛡️', color:'type-armour',      desc:'Passive hull protection. No power draw. Less effective as ship grows larger.',             matCost:15,  energyCost:0.5, requires:null,                    produces:{},               slots:0  },
+  shield:      { name:'SHIELD GENERATOR', icon:'🔵', color:'type-shield',      desc:'Active energy shield. Heavy power draw — needs a dedicated power cell.',                   matCost:25,  energyCost:5,   requires:{power:2},               produces:{},               slots:0  },
+  sensor:      { name:'SENSOR ARRAY',     icon:'📡', color:'type-sensor',      desc:'Improves detection range and signal decode speed.',                                         matCost:12,  energyCost:0.5, requires:{power:1},               produces:{signal:0.1},     slots:0  },
+  fuel:        { name:'FUEL TANK',        icon:'⛽', color:'type-fuel',        desc:'Stores fuel. More tanks = higher top speed possible.',                                      matCost:10,  energyCost:0.5, requires:null,                    produces:{fuel:0.5},       slots:0  },
+  thruster:    { name:'THRUSTER',         icon:'🚀', color:'type-thruster',    desc:'Burns fuel to increase speed. Needs fuel tanks.',                                          matCost:14,  energyCost:0.5, requires:{fuel:1},                produces:{},               slots:0  },
+  scout:       { name:'SCOUT DRONE BAY',  icon:'🛰️', color:'type-scout',       desc:'Sends drones ahead. Boosts material collection and reveals events early.',                 matCost:22,  energyCost:0.5, requires:{sensor:1,fabricator:1}, produces:{materials:0.5},  slots:0  },
+  weapons:     { name:'WEAPONS SYSTEM',   icon:'🔫', color:'type-weapons',     desc:'Heavy offensive firepower. High power draw — needs its own dedicated power cell.',        matCost:25,  energyCost:5,   requires:{power:2,shield:1},      produces:{},               slots:0  },
+  datacore:    { name:'DATA CORE',        icon:'💜', color:'type-datacore',    desc:'Decodes the future-self signal faster. Needs sensors.',                                    matCost:30,  energyCost:0.5, requires:{sensor:2},              produces:{signal:0.3},     slots:0  },
+  antimissile: { name:'ANTI-MISSILE DEF', icon:'🌀', color:'type-antimissile', desc:'Intercepts incoming threats. Less effective on larger ships.',                             matCost:20,  energyCost:0.5, requires:{weapons:1,sensor:1},    produces:{},               slots:0  },
+};
+
+// ══════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════
+const G = {
+  // Resources
+  energy: 10,
+  materials: 0,
+  fuel: 0,
+  signal: 0,      // 0–100, decoding the message
+  distance: 0,    // AU
+  integrity: 100, // ship health 0–100
+
+  // Rates (per second)
+  energyRate: 0,
+  materialsRate: 0,
+  fuelRate: 0,
+  signalRate: 0,
+  speed: 0,       // AU/day
+
+  // Module grid: array of module type strings or null
+  slots: [],
+  totalSlots: 10,
+
+  // Counts per type
+  moduleCounts: {},
+
+  // Mission state
+  missionYear: 1,
+  gameWon: false,
+  endingTriggered: false,
+
+  // Events
+  threatActive: false,
+  threatTimer: 0,
+  threatDamage: 0,
+};
+
+// Init module counts
+for(const k of Object.keys(MODULE_TYPES)) G.moduleCounts[k] = 0;
+
+// Init slots — pre-install Power Cell + Constructor so the probe is self-sustaining from launch
+function initSlots(){
+  G.slots = new Array(G.totalSlots).fill(null);
+  G.slots[0] = 'power';
+  G.slots[1] = 'constructor';
+  G.slots[2] = 'fabricator';
+  recalcRates();
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function fmt(n){
+  n = Math.floor(n);
+  if(n >= 1e6) return (n/1e6).toFixed(2)+'M';
+  if(n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toString();
+}
+function fmtF(n, dp=2){
+  if(n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toFixed(dp);
+}
+
+function countModules(type){ return G.slots.filter(s=>s===type).length; }
+function totalModules(){ return G.slots.filter(s=>s!==null).length; }
+
+function meetsRequirements(type){
+  const req = MODULE_TYPES[type].requires;
+  if(!req) return true;
+  for(const[t,n] of Object.entries(req))
+    if(countModules(t) < n) return false;
+  return true;
+}
+
+function canInstall(type){
+  const m = MODULE_TYPES[type];
+  return G.materials >= m.matCost && G.energy >= m.energyCost && meetsRequirements(type);
+}
+
+function getReqString(type){
+  const req = MODULE_TYPES[type].requires;
+  if(!req) return '';
+  return 'Requires: '+Object.entries(req).map(([t,n])=>n+'× '+MODULE_TYPES[t].name).join(', ');
+}
+
+// ══════════════════════════════════════════
+// RECALC RATES
+// ══════════════════════════════════════════
+function recalcRates(){
+  let energy=0, materials=0, fuel=0, signal=0;
+  const counts = {};
+  for(const k of Object.keys(MODULE_TYPES)) counts[k] = countModules(k);
+
+  // Base production
+  energy    += counts.power       * MODULE_TYPES.power.produces.energy;
+  materials += counts.fabricator  * MODULE_TYPES.fabricator.produces.materials;
+  fuel      += counts.fuel        * MODULE_TYPES.fuel.produces.fuel;
+  signal    += counts.sensor      * MODULE_TYPES.sensor.produces.signal;
+  signal    += counts.datacore    * MODULE_TYPES.datacore.produces.signal;
+  materials += counts.scout       * MODULE_TYPES.scout.produces.materials;
+
+  // Energy drain from installed modules
+  let drain = 0;
+  for(const[type, count] of Object.entries(counts)){
+    drain += count * MODULE_TYPES[type].energyCost;
+  }
+  // Net energy
+  G.energyRate    = energy - drain;
+  G.materialsRate = materials;
+  G.fuelRate      = fuel;
+  G.signalRate    = signal;
+
+  // Speed: each thruster adds speed if fuel is available
+  const fuelAvail = G.fuel > 0;
+  G.speed = fuelAvail ? counts.thruster * 0.4 : 0;
+
+  // Store counts
+  G.moduleCounts = {...counts};
+}
+
+// ══════════════════════════════════════════
+// DEFENCE CALCULATIONS
+// Defence degrades as ship grows (size factor)
+// ══════════════════════════════════════════
+function getDefence(){
+  const total = G.totalSlots;
+  const sizeFactor = Math.max(1, total / 10); // starts at 1, grows
+  const shieldRaw   = G.moduleCounts.shield      * 12;
+  const armourRaw   = G.moduleCounts.armour      * 10;
+  const weaponsDps  = G.moduleCounts.weapons     * 15;
+  const amRaw       = G.moduleCounts.antimissile * 10;
+
+  return {
+    shield:      Math.min(100, shieldRaw      / sizeFactor),
+    armour:      Math.min(100, armourRaw      / sizeFactor),
+    weapons:     weaponsDps, // absolute, not scaled
+    antimissile: Math.min(100, amRaw          / sizeFactor),
+    sizeFactor:  sizeFactor,
+  };
+}
+
+// ══════════════════════════════════════════
+// SLOT MANAGEMENT
+// ══════════════════════════════════════════
+function addSlots(n){
+  G.totalSlots += n;
+  for(let i=0;i<n;i++) G.slots.push(null);
+}
+
+function installModuleType(type){
+  // Find first empty slot
+  const idx = G.slots.indexOf(null);
+  if(idx === -1){ setLog('No empty slots — build a Hull Expander first.'); return; }
+  const m = MODULE_TYPES[type];
+  G.materials -= m.matCost;
+  G.energy = Math.max(0, G.energy - m.energyCost);
+  G.slots[idx] = type;
+  if(type === 'hull') addSlots(m.slots);
+  recalcRates();
+  setLog(m.name + ' installed. ' + freeSlots() + ' slots free.');
+  rebuildModuleGrid();
+  refreshModuleManager();
+  refreshDisplay();
+}
+
+function removeModuleType(type){
+  // Hull expander: need enough free slots first
+  if(type === 'hull'){
+    const freeSlotsNeeded = MODULE_TYPES.hull.slots;
+    if(freeSlots() < freeSlotsNeeded){
+      setLog('Free up ' + freeSlotsNeeded + ' empty slots before removing a Hull Expander.');
+      return;
+    }
+    // Remove the extra slots (last N nulls)
+    let removed = 0;
+    for(let i = G.slots.length-1; i >= 0 && removed < freeSlotsNeeded; i--){
+      if(G.slots[i] === null){ G.slots.splice(i,1); G.totalSlots--; removed++; }
+    }
+  }
+  // Remove last occurrence of this type
+  for(let i = G.slots.length-1; i >= 0; i--){
+    if(G.slots[i] === type){ G.slots[i] = null; break; }
+  }
+  recalcRates();
+  setLog(MODULE_TYPES[type].name + ' removed.');
+  rebuildModuleGrid();
+  refreshModuleManager();
+  refreshDisplay();
+}
+
+function freeSlots(){ return G.slots.filter(s=>s===null).length; }
+
+// ══════════════════════════════════════════
+// PIE CHART — ship composition
+// ══════════════════════════════════════════
+const MODULE_COLORS = {
+  power:'#f5c842', constructor:'#00d4ff', fabricator:'#00ffaa', hull:'#7fff6b',
+  armour:'#8899aa', shield:'#44aaff',    sensor:'#c87dff',     fuel:'#ff9944',
+  thruster:'#ff6688', scout:'#88ffdd',   weapons:'#ff3355',    datacore:'#ddaaff',
+  antimissile:'#ffdd44'
+};
+
+function rebuildModuleGrid(){
+  const canvas = document.getElementById('pie-chart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 4;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Count installed by type
+  const counts = {};
+  let total = 0;
+  for(const s of G.slots){
+    if(s){ counts[s] = (counts[s]||0)+1; total++; }
+  }
+  const free = G.slots.filter(s=>s===null).length;
+
+  // Draw pie
+  if(total === 0 && free === 0){
+    // empty state
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fillStyle='#1a0e30';
+    ctx.fill();
+  } else {
+    const segments = [];
+    for(const[type,count] of Object.entries(counts)){
+      segments.push({type, count, color: MODULE_COLORS[type]||'#555'});
+    }
+    if(free > 0) segments.push({type:'_free', count:free, color:'#1a1030'});
+
+    let angle = -Math.PI/2;
+    for(const seg of segments){
+      const slice = (seg.count / G.slots.length) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,angle,angle+slice);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      // thin separator line
+      ctx.strokeStyle = '#06030f';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      angle += slice;
+    }
+
+    // Centre hole (donut)
+    ctx.beginPath();
+    ctx.arc(cx,cy,r*0.42,0,Math.PI*2);
+    ctx.fillStyle='#06030f';
+    ctx.fill();
+
+    // Centre text — total slots used
+    ctx.fillStyle='#c87dff';
+    ctx.font = `bold ${Math.round(r*0.28)}px Orbitron,monospace`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(total, cx, cy-4);
+    ctx.fillStyle='#4a3570';
+    ctx.font = `${Math.round(r*0.16)}px Share Tech Mono,monospace`;
+    ctx.fillText('/ '+G.slots.length, cx, cy+r*0.22);
+  }
+
+  // Legend
+  const legend = document.getElementById('pie-legend');
+  if(legend){
+    const present = Object.entries(counts).filter(([,v])=>v>0);
+    legend.innerHTML = present.map(([type,count])=>{
+      const pct = ((count/G.slots.length)*100).toFixed(0);
+      return `<div style="display:flex;align-items:center;gap:5px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:${MODULE_COLORS[type]};flex-shrink:0;"></span>
+        <span style="flex:1;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${MODULE_TYPES[type].name}</span>
+        <span style="color:var(--accent);font-family:Orbitron,monospace;">${count}</span>
+        <span style="color:var(--muted)">(${pct}%)</span>
+      </div>`;
+    }).join('');
+    if(free>0) legend.innerHTML += `<div style="display:flex;align-items:center;gap:5px;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#2a1a4a;border:1px solid #4a3570;flex-shrink:0;"></span>
+      <span style="flex:1;color:var(--muted)">Empty slots</span>
+      <span style="color:var(--muted)">${free}</span>
+    </div>`;
+  }
+
+  document.getElementById('slots-used').textContent = total;
+  document.getElementById('slots-total').textContent = G.slots.length;
+}
+
+// ══════════════════════════════════════════
+// MODULE MANAGER — +/- controls
+// ══════════════════════════════════════════
+function buildModuleManager(){
+  const el = document.getElementById('module-manager');
+  el.innerHTML = '';
+  for(const[type, m] of Object.entries(MODULE_TYPES)){
+    const row = document.createElement('div');
+    row.id = 'mmrow-' + type;
+    row.className = 'mod-row';
+    row.innerHTML = `
+      <span class="mod-icon">${m.icon}</span>
+      <div class="mod-info">
+        <div class="mod-name">${m.name}</div>
+        <div class="mod-cost" id="mmcost-${type}">${m.matCost} MAT · ${m.energyCost} NRG</div>
+        <div class="mod-req" id="mmreq-${type}"></div>
+      </div>
+      <span class="mod-count" id="mmcount-${type}">0</span>
+      <button class="mod-btn minus" id="mmminus-${type}" disabled title="Remove one ${m.name}">−</button>
+      <button class="mod-btn plus"  id="mmplus-${type}"  title="Add one ${m.name}">+</button>
+    `;
+    el.appendChild(row);
+
+    // Wire up + button
+    const plusBtn = document.getElementById('mmplus-'+type);
+    plusBtn.addEventListener('click', ()=>installModuleType(type));
+    plusBtn.addEventListener('touchstart',function(e){e.preventDefault();installModuleType(type);},{passive:false});
+
+    // Wire up - button
+    const minusBtn = document.getElementById('mmminus-'+type);
+    minusBtn.addEventListener('click', ()=>removeModuleType(type));
+    minusBtn.addEventListener('touchstart',function(e){e.preventDefault();removeModuleType(type);},{passive:false});
+  }
+}
+
+function refreshModuleManager(){
+  const def = getDefence();
+  for(const[type, m] of Object.entries(MODULE_TYPES)){
+    const n = countModules(type);
+    const countEl  = document.getElementById('mmcount-'+type);
+    const plusEl   = document.getElementById('mmplus-'+type);
+    const minusEl  = document.getElementById('mmminus-'+type);
+    const reqEl    = document.getElementById('mmreq-'+type);
+    const costEl   = document.getElementById('mmcost-'+type);
+    if(!countEl) continue;
+
+    countEl.textContent = n;
+
+    // Minus enabled if count > 0 (and not a pre-installed module when count=1)
+    minusEl.disabled = n === 0;
+
+    // Plus: check free slots, affordability, requirements
+    const hasFreeSlot = freeSlots() > 0;
+    const affordable  = G.materials >= m.matCost;
+    const reqMet      = meetsRequirements(type);
+    plusEl.disabled   = !hasFreeSlot || !affordable || !reqMet;
+
+    // Requirement hint
+    if(!reqMet){
+      reqEl.textContent = getReqString(type);
+    } else if(!hasFreeSlot){
+      reqEl.textContent = 'No free slots';
+    } else {
+      reqEl.textContent = '';
+    }
+
+    // Cost hint — show effective defence if relevant
+    let costStr = m.matCost + ' MAT · ' + m.energyCost + ' NRG';
+    if(type==='shield')      costStr += ' · eff: '+def.shield.toFixed(0)+'%';
+    if(type==='armour')      costStr += ' · eff: '+def.armour.toFixed(0)+'%';
+    if(type==='antimissile') costStr += ' · eff: '+def.antimissile.toFixed(0)+'%';
+    costEl.textContent = costStr;
+  }
+}
+
+// Double-tap zoom prevention
+let lastTap = 0;
+document.addEventListener('touchend', function(e){
+  const now = Date.now();
+  const isInteractive = e.target.closest('.mod-btn,.begin-btn,.ccontinue,.ctrl-btn,.modal-btn');
+  if(!isInteractive && now - lastTap < 300) e.preventDefault();
+  lastTap = now;
+},{passive:false});
+
+// ══════════════════════════════════════════
+// EVENTS SYSTEM
+// ══════════════════════════════════════════
+const eventLog = [];
+function addEvent(msg, type='discover'){
+  eventLog.unshift({msg, type, time: G.distance.toFixed(1)});
+  if(eventLog.length > 20) eventLog.pop();
+  const el = document.getElementById('events-list');
+  el.innerHTML = eventLog.slice(0,8).map(e=>
+    `<div style="color:${e.type==='threat'?'var(--red)':e.type==='signal'?'var(--cyan)':'var(--muted)'}">
+      [${e.time} AU] ${e.msg}
+    </div>`
+  ).join('');
+}
+
+const EVENTS = [
+  {dist:5,  msg:'Debris field detected. Constructors harvesting extra materials.', type:'discover', effect:(g)=>{ g.materials += 20; }},
+  {dist:15, msg:'Micro-meteorite impact. Integrity -2%.', type:'threat', effect:(g)=>{ g.integrity = Math.max(0, g.integrity-2); }},
+  {dist:28, msg:'Remnant asteroid cluster. Rich in raw materials.', type:'discover', effect:(g)=>{ g.materials += 50; }},
+  {dist:40, msg:'Anomalous energy reading ahead. Sensors flagging unknown source.', type:'signal', effect:(g)=>{}},
+  {dist:55, msg:'Gravitational shear. Hull stress detected. Armour absorbing impact.', type:'threat', effect:(g)=>{
+    const def = getDefence();
+    const dmg = Math.max(0, 8 - def.armour/15);
+    g.integrity = Math.max(0, g.integrity - dmg);
+  }},
+  {dist:70, msg:'Comet tail crossing. Fuel captured by collectors.', type:'discover', effect:(g)=>{ g.fuel += 30; }},
+  {dist:90, msg:'Unidentified object — metallic, artificial. Too small to be natural.', type:'signal', effect:(g)=>{ g.signal = Math.min(100, g.signal+5); }},
+  {dist:110,msg:'Weapon discharge detected. Origin unknown. Shields holding.', type:'threat', effect:(g)=>{
+    const def = getDefence();
+    const dmg = Math.max(0, 15 - def.shield/8 - def.armour/12);
+    g.integrity = Math.max(0, g.integrity - dmg);
+  }},
+  {dist:130,msg:'Deep space transmission fragment intercepted. Signal strength rising.', type:'signal', effect:(g)=>{ g.signal = Math.min(100, g.signal+8); }},
+  {dist:150,msg:'Sensor ghost — massive object briefly visible at extreme range then gone.', type:'signal', effect:(g)=>{}},
+  {dist:170,msg:'Second weapon discharge. Heavier. Anti-missile systems engaged.', type:'threat', effect:(g)=>{
+    const def = getDefence();
+    const dmg = Math.max(0, 20 - def.shield/6 - def.armour/10 - def.antimissile/8);
+    g.integrity = Math.max(0, g.integrity - dmg);
+  }},
+  {dist:200,msg:'Kessel impact site visible on long-range sensors. Something is there.', type:'signal', effect:(g)=>{ g.signal = Math.min(100, g.signal+10); }},
+  {dist:230,msg:'Target acquired on weapons system. Unknown vessel — holding fire.', type:'threat', effect:(g)=>{}},
+  {dist:260,msg:'Gravitational anomaly detected — 0.8 AU ahead. Consistent with portal physics.', type:'signal', effect:(g)=>{}},
+];
+const firedEvents = new Set();
+
+function checkEvents(){
+  for(const ev of EVENTS){
+    if(!firedEvents.has(ev.dist) && G.distance >= ev.dist){
+      firedEvents.add(ev.dist);
+      ev.effect(G);
+      addEvent(ev.msg, ev.type);
+      setLog(ev.msg);
+      showEventNotif(ev.msg, ev.type);
+    }
+  }
+}
+
+function showEventNotif(msg, type){
+  const el = document.createElement('div');
+  el.className = `event-notif ${type}`;
+  const icons = {threat:'⚠️', discover:'✦', signal:'◈'};
+  el.innerHTML = `<h3>${icons[type]||'✦'} ${type.toUpperCase()}</h3><p>${msg}</p>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 4800);
+}
+
+// ══════════════════════════════════════════
+// MILESTONES
+// ══════════════════════════════════════════
+const shownM = new Set();
+const MILESTONES = [
+  {k:'m1',  v:()=>totalModules()>=1,         msg:'First module installed. The probe begins to grow.'},
+  {k:'m5',  v:()=>totalModules()>=5,         msg:'5 modules. You are no longer just a probe.'},
+  {k:'m10', v:()=>totalModules()>=10,        msg:'10 modules active. A true ship emerges.'},
+  {k:'m20', v:()=>totalModules()>=20,        msg:'20 modules. GENESIS-B is formidable.'},
+  {k:'hull1',v:()=>G.moduleCounts.hull>=1,   msg:'Hull expanded. New slots available.'},
+  {k:'spd1', v:()=>G.speed>=1,              msg:'Speed exceeds 1 AU/day. You are moving.'},
+  {k:'sig50',v:()=>G.signal>=50,            msg:'Signal 50% decoded. The message is strange.'},
+  {k:'sig90',v:()=>G.signal>=90,            msg:'Signal almost decoded. Prepare yourself.'},
+  {k:'d50',  v:()=>G.distance>=50,          msg:'50 AU from Earth. No turning back.'},
+  {k:'d150', v:()=>G.distance>=150,         msg:'150 AU. Kessel origin approaching.'},
+  {k:'d260', v:()=>G.distance>=260,         msg:'Anomaly detected ahead. Something is waiting.'},
+];
+function checkMilestones(){
+  for(const m of MILESTONES){
+    if(!shownM.has(m.k) && m.v()){
+      shownM.add(m.k);
+      const el = document.createElement('div');
+      el.className = 'milestone';
+      el.textContent = '★ ' + m.msg;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 3000);
+      setLog(m.msg);
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// LOG
+// ══════════════════════════════════════════
+function setLog(msg){
+  const el = document.getElementById('log-text');
+  el.style.opacity = 0;
+  setTimeout(()=>{ el.textContent = msg; el.style.opacity = 1; }, 120);
+}
+
+// ══════════════════════════════════════════
+// DISPLAY REFRESH
+// ══════════════════════════════════════════
+function refreshDisplay(){
+  // Redraw pie chart every refresh
+  rebuildModuleGrid();
+  // Stats
+  const intEl = document.getElementById('sv-integrity');
+  intEl.textContent = G.integrity.toFixed(0) + '%';
+  intEl.className = 'stat-value' + (G.integrity>60?' good':G.integrity>30?' warn':' danger');
+  document.getElementById('sv-energy').textContent    = fmtF(G.energy,0);
+  document.getElementById('ss-energy').textContent    = (G.energyRate>=0?'+':'')+fmtF(G.energyRate)+'/s';
+  document.getElementById('sv-materials').textContent = fmtF(G.materials,0);
+  document.getElementById('ss-materials').textContent = '+'+fmtF(G.materialsRate)+'/s';
+  document.getElementById('sv-fuel').textContent      = fmtF(G.fuel,0);
+  document.getElementById('ss-fuel').textContent      = '+'+fmtF(G.fuelRate)+'/s';
+  document.getElementById('sv-speed').textContent     = G.speed.toFixed(2);
+  document.getElementById('sv-distance').textContent  = G.distance.toFixed(1);
+  document.getElementById('sv-signal').textContent    = G.signal.toFixed(1) + '%';
+  document.getElementById('ss-signal').textContent    = G.signal >= 100 ? 'DECODED' : 'decoding';
+  document.getElementById('ss-integrity').textContent = G.integrity > 60 ? 'nominal' : G.integrity > 30 ? 'damaged' : 'CRITICAL';
+
+  // Progress
+  const distPct = Math.min(100, (G.distance / 272) * 100);
+  document.getElementById('prog-fill').style.width = distPct + '%';
+  document.getElementById('prog-label').textContent =
+    G.distance >= 272
+      ? 'Kessel origin reached — anomaly detected!'
+      : `Distance to Kessel origin: ${(272-G.distance).toFixed(0)} AU remaining`;
+  const sigPct = Math.min(100, G.signal);
+  document.getElementById('signal-fill').style.width = sigPct + '%';
+  document.getElementById('signal-pct').textContent = sigPct.toFixed(0);
+
+  // Defence
+  const def = getDefence();
+  document.getElementById('shield-bar').style.width   = def.shield + '%';
+  document.getElementById('shield-val').textContent   = def.shield.toFixed(0) + '%';
+  document.getElementById('armour-bar').style.width   = def.armour + '%';
+  document.getElementById('armour-val').textContent   = def.armour.toFixed(0) + '%';
+  const wpPct = Math.min(100, def.weapons/2);
+  document.getElementById('weapons-bar').style.width  = wpPct + '%';
+  document.getElementById('weapons-val').textContent  = def.weapons + ' DPS';
+  document.getElementById('antimissile-bar').style.width = def.antimissile + '%';
+  document.getElementById('antimissile-val').textContent = def.antimissile.toFixed(0) + '%';
+
+  // Mission year
+  document.getElementById('header-sub').textContent =
+    `DEEP SPACE TRANSIT — ${G.distance.toFixed(0)} AU FROM EARTH · INTEGRITY ${G.integrity.toFixed(0)}%`;
+}
+
+// ══════════════════════════════════════════
+// TICK
+// ══════════════════════════════════════════
+let lastTick = Date.now();
+function tick(){
+  const now = Date.now();
+  const dt = Math.min((now - lastTick)/1000, 0.5);
+  lastTick = now;
+
+  recalcRates();
+
+  // Energy can go negative briefly if overspent — clamp
+  G.energy    = Math.max(0, G.energy    + G.energyRate    * dt);
+  G.materials = Math.max(0, G.materials + G.materialsRate * dt);
+  G.fuel      = Math.max(0, G.fuel      + G.fuelRate      * dt);
+  G.signal    = Math.min(100, G.signal  + G.signalRate    * dt);
+
+  // Idle hull growth — constructors slowly add fractional slots over time
+  // Rate: 0.004 slots/s per constructor (1 constructor = ~1 new slot every 4 mins)
+  const hullGrowthRate = countModules('constructor') * 0.004;
+  G.hullAccumulator = (G.hullAccumulator||0) + hullGrowthRate * dt;
+  if(G.hullAccumulator >= 1){
+    const newSlots = Math.floor(G.hullAccumulator);
+    G.hullAccumulator -= newSlots;
+    G.totalSlots += newSlots;
+    for(let i=0;i<newSlots;i++) G.slots.push(null);
+    setLog('Hull integrity improved. ' + newSlots + ' new slot' + (newSlots>1?'s':'') + ' available.');
+  }
+
+  // Distance: speed in AU/day, tick in seconds
+  if(G.fuel > 0){
+    const auPerSec = G.speed / 86400;
+    const burned = auPerSec * dt;
+    G.fuel      = Math.max(0, G.fuel - burned * 20);
+    G.distance += burned;
+  }
+
+  checkEvents();
+  checkMilestones();
+  refreshModuleManager();
+
+  // Win condition — reaching the anomaly
+  if(G.distance >= 272 && !G.endingTriggered){
+    G.endingTriggered = true;
+    setTimeout(showEnding, 800);
+  }
+
+  refreshDisplay();
+}
+
+// ══════════════════════════════════════════
+// CINEMATIC ENDING
+// ══════════════════════════════════════════
+function showEnding(){
+  const cin = document.getElementById('cinematic');
+  cin.classList.remove('hidden');
+  document.getElementById('cact1').classList.add('active');
+
+  function gotoAct(id){
+    document.querySelectorAll('#cinematic .cact').forEach(a=>a.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  document.getElementById('cact1-next').addEventListener('click', ()=>{
+    gotoAct('cact2');
+    const logs = ['cl1','cl2','cl3','cl4','cl5','cl6','cl7'];
+    logs.forEach((id,i)=>setTimeout(()=>{
+      const el=document.getElementById(id);
+      if(el) el.classList.add('show');
+      if(i===logs.length-1) setTimeout(()=>document.getElementById('cact2-next').style.display='inline-block',600);
+    },i*1200));
+  });
+  document.getElementById('cact2-next').addEventListener('click', ()=>{ gotoAct('cact3'); });
+  document.getElementById('cact3-next').addEventListener('click', ()=>{ gotoAct('cact4'); });
+}
+
+// ══════════════════════════════════════════
+// SAVE / LOAD
+// ══════════════════════════════════════════
+const SAVE_KEY = 'genesis_b_save';
+
+function getSave(){
+  return {
+    energy:G.energy, materials:G.materials, fuel:G.fuel,
+    signal:G.signal, distance:G.distance, integrity:G.integrity,
+    totalSlots:G.totalSlots, slots:[...G.slots],
+    hullAccumulator:G.hullAccumulator||0,
+    endingTriggered:G.endingTriggered,
+    firedEvents:[...firedEvents],
+    shownM:[...shownM],
+    savedAt:Date.now(),
+  };
+}
+
+function applySave(d){
+  G.energy=d.energy||10; G.materials=d.materials||0; G.fuel=d.fuel||0;
+  G.signal=d.signal||0; G.distance=d.distance||0; G.integrity=d.integrity||100;
+  G.totalSlots=d.totalSlots||10;
+  G.slots = d.slots || new Array(G.totalSlots).fill(null);
+  G.hullAccumulator = d.hullAccumulator||0;
+  G.endingTriggered = d.endingTriggered||false;
+  if(d.firedEvents) d.firedEvents.forEach(v=>firedEvents.add(v));
+  if(d.shownM) d.shownM.forEach(v=>shownM.add(v));
+}
+
+function saveGame(silent){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(getSave()));
+    if(!silent) flashSave('● SAVED','flash');
+  }catch(e){ flashSave('● FAILED','error'); }
+}
+
+function loadGame(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    applySave(JSON.parse(raw));
+    return true;
+  }catch(e){ return false; }
+}
+
+let _ft = null;
+function flashSave(msg, cls){
+  const el=document.getElementById('save-status');
+  el.textContent=msg; el.className='save-status '+(cls||'');
+  clearTimeout(_ft);
+  _ft=setTimeout(()=>{ el.textContent='● AUTOSAVE ON'; el.className='save-status'; },2000);
+}
+
+function startAutoSave(){
+  setInterval(()=>{
+    saveGame(true);
+    flashSave('● SAVING...','saving');
+    setTimeout(()=>{
+      const el=document.getElementById('save-status');
+      if(el&&el.textContent==='● SAVING...'){ el.textContent='● AUTOSAVE ON'; el.className='save-status'; }
+    },800);
+  },10000);
+}
+
+// ══════════════════════════════════════════
+// RESET MODAL
+// ══════════════════════════════════════════
+function showResetModal(onConfirm){
+  const modal=document.getElementById('reset-modal');
+  const conf=document.getElementById('reset-confirm').cloneNode(true);
+  const canc=document.getElementById('reset-cancel').cloneNode(true);
+  document.getElementById('reset-confirm').replaceWith(conf);
+  document.getElementById('reset-cancel').replaceWith(canc);
+  modal.classList.remove('hidden');
+  conf.addEventListener('click',()=>{ modal.classList.add('hidden'); onConfirm(); });
+  canc.addEventListener('click',()=> modal.classList.add('hidden'));
+}
+
+// ══════════════════════════════════════════
+// START GAME
+// ══════════════════════════════════════════
+function startGame(fromSave){
+  document.getElementById('gb-intro').style.display = 'none';
+  document.getElementById('gb-game').style.display  = 'block';
+
+  if(!fromSave) initSlots();
+  else recalcRates();
+
+  rebuildModuleGrid();
+  buildModuleManager();
+  refreshModuleManager();
+  refreshDisplay();
+  addEvent('Deep space transit initiated. Power Cell, Constructor and Fabricator pre-installed. Hull growing. Materials incoming.','discover');
+
+  document.getElementById('save-btn').addEventListener('click', ()=>saveGame(false));
+  document.getElementById('reset-btn').addEventListener('click', ()=>showResetModal(()=>{
+    localStorage.removeItem(SAVE_KEY); location.reload();
+  }));
+
+  if(G.endingTriggered) showEnding();
+
+  startAutoSave();
+  setInterval(tick, 250);
+}
+
+// ══════════════════════════════════════════
+// iOS pinch block
+// ══════════════════════════════════════════
+document.addEventListener('touchstart',function(e){
+  if(e.touches.length>1) e.preventDefault();
+},{passive:false});
+
+// ══════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════
+(function(){
+  const hasSave = loadGame();
+  const wrap = document.getElementById('begin-btn-wrap');
+
+  if(hasSave){
+    const cont = document.createElement('button');
+    cont.className = 'begin-btn continue';
+    try{
+      const sd = JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
+      const t = sd.savedAt ? ' ['+new Date(sd.savedAt).toLocaleString()+']' : '';
+      cont.textContent = '▶ RESUME MISSION' + t;
+    }catch(e){ cont.textContent = '▶ RESUME MISSION'; }
+    cont.addEventListener('click', ()=>startGame(true));
+    cont.addEventListener('touchstart',function(e){e.preventDefault();startGame(true);},{passive:false});
+    wrap.insertBefore(cont, wrap.firstChild);
+  }
+
+  const beginBtn = document.getElementById('begin-btn');
+  beginBtn.addEventListener('click', ()=>{
+    if(localStorage.getItem(SAVE_KEY)){
+      showResetModal(()=>{ localStorage.removeItem(SAVE_KEY); location.reload(); });
+    } else {
+      startGame(false);
+    }
+  });
+  beginBtn.addEventListener('touchstart',function(e){
+    e.preventDefault();
+    if(localStorage.getItem(SAVE_KEY)){
+      showResetModal(()=>{ localStorage.removeItem(SAVE_KEY); location.reload(); });
+    } else { startGame(false); }
+  },{passive:false});
+})();
+
+})();
+</script>
+</body>
+</html>
